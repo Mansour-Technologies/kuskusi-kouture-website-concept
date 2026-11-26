@@ -1,0 +1,62 @@
+// Usage: node scripts/shots.mjs <baseUrl> <outDir>
+import { chromium } from '@playwright/test';
+import { mkdirSync } from 'node:fs';
+const base = (process.argv[2] ?? 'http://localhost:4321/kuskusi-kouture-website-concept/').replace(/\/?$/, '/');
+const out = process.argv[3] ?? 'shots';
+mkdirSync(out, { recursive: true });
+const browser = await chromium.launch({ executablePath: process.env.PW_EXEC || undefined });
+const errors = [];
+async function ctx(w, h, mobile = false) {
+  const c = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: mobile ? 2 : 1, isMobile: mobile, hasTouch: mobile });
+  const p = await c.newPage();
+  p.on('console', (m) => m.type() === 'error' && errors.push(`${p.url()}: ${m.text()}`));
+  p.on('pageerror', (e) => errors.push(`${p.url()}: ${e.message}`));
+  return p;
+}
+const settle = async (p) => { await p.waitForLoadState('networkidle'); await p.evaluate(() => document.querySelectorAll('.rv').forEach((e) => e.classList.add('in'))); await p.waitForTimeout(1700); };
+const d = await ctx(1440, 900);
+await d.goto(base); await settle(d);
+await d.screenshot({ path: `${out}/desktop-home.png` });
+await d.screenshot({ path: `${out}/desktop-home-full.png`, fullPage: true });
+await d.goto(base + 'collections/'); await settle(d);
+await d.screenshot({ path: `${out}/desktop-collections.png`, fullPage: true });
+await d.click('[data-line="djellabas"]'); await d.waitForTimeout(800);
+await d.screenshot({ path: `${out}/desktop-collections-filtered.png` });
+await d.goto(base + 'creations/etude-02/'); await settle(d);
+await d.screenshot({ path: `${out}/desktop-detail.png` });
+await d.screenshot({ path: `${out}/desktop-detail-full.png`, fullPage: true });
+await d.click('.sz__i:has-text("40")'); await d.click('button.add'); await d.waitForTimeout(600);
+await d.locator('.gal__set:not([hidden]) [data-zoom]').first().click(); await d.waitForTimeout(700);
+await d.locator('[data-zoom-stage]').click({ position: { x: 400, y: 200 } }); await d.waitForTimeout(700);
+await d.screenshot({ path: `${out}/desktop-zoom.png` });
+await d.keyboard.press('Escape');
+await d.locator('.hdr__bag').click(); await d.waitForTimeout(700);
+await d.screenshot({ path: `${out}/desktop-bag-drawer.png` });
+await d.keyboard.press('Escape');
+await d.goto(base + 'lookbook/'); await settle(d);
+await d.screenshot({ path: `${out}/desktop-lookbook-full.png`, fullPage: true });
+for (const pg of ['maison/', 'contact/', 'selection/', 'collections/kaftans/']) { await d.goto(base + pg); await settle(d); await d.screenshot({ path: `${out}/desktop-${pg.replace(/\//g, '-').replace(/-$/, '')}.png`, fullPage: true }); }
+
+const m = await ctx(375, 812, true);
+await m.goto(base); await settle(m);
+await m.screenshot({ path: `${out}/mobile-home.png` });
+await m.screenshot({ path: `${out}/mobile-home-full.png`, fullPage: true });
+await m.locator('.thumb [data-open-menu]').click(); await m.waitForTimeout(900);
+await m.screenshot({ path: `${out}/mobile-nav-open.png` });
+await m.keyboard.press('Escape');
+await m.goto(base + 'collections/'); await settle(m);
+await m.screenshot({ path: `${out}/mobile-collections.png` });
+await m.goto(base + 'creations/etude-01/'); await settle(m);
+await m.screenshot({ path: `${out}/mobile-detail.png` });
+await m.screenshot({ path: `${out}/mobile-detail-full.png`, fullPage: true });
+await m.click('.sz__i:has-text("38")'); await m.click('button.add'); await m.waitForTimeout(500);
+await m.locator('.thumb [data-open-bag]').click(); await m.waitForTimeout(800);
+await m.screenshot({ path: `${out}/mobile-bag-drawer.png` });
+await m.keyboard.press('Escape');
+await m.goto(base + 'lookbook/'); await settle(m);
+await m.screenshot({ path: `${out}/mobile-lookbook-full.png`, fullPage: true });
+await m.goto(base + 'selection/'); await settle(m);
+await m.click('[data-compose]'); await m.waitForTimeout(300);
+await m.screenshot({ path: `${out}/mobile-selection-full.png`, fullPage: true });
+await browser.close();
+console.log(errors.length ? 'ERRORS:\n' + errors.join('\n') : 'no console errors');
