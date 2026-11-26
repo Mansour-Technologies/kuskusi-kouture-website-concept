@@ -284,8 +284,8 @@ const feed = [
   .ch__grid > :global(.ch__i0) { grid-column: 1 / span 5; }
   .ch__grid > :global(.ch__i1) { grid-column: 6 / span 3; margin-top: 45%; }
   .ch__grid > :global(.ch__i2) { grid-column: 2 / span 3; }
-  .ch__grid > :global(.ch__i3) { grid-column: 5 / span 4; margin-top: -18%; }
-  .ch--3 .ch__grid > :global(.ch__i2) { grid-column: 3 / span 4; margin-top: -10%; }
+  .ch__grid > :global(.ch__i3) { grid-column: 5 / span 4; margin-top: 3rem; }
+  .ch--3 .ch__grid > :global(.ch__i2) { grid-column: 3 / span 4; margin-top: 0; }
   @media (max-width: 860px) {
     .ch { grid-template-columns: 1fr; gap: 1.5rem; }
     .ch__head, .ch--rev .ch__head { grid-column: 1; grid-row: auto; position: static; }
@@ -344,7 +344,7 @@ const feed = [
   .pres { padding-top: clamp(5rem, 11vw, 10rem); }
   .pres__grid { display: grid; grid-template-columns: 5fr 7fr; gap: 2.5rem calc(var(--gutter) * 2); align-items: center; }
   .pres__copy .sec-title { margin-bottom: 1.5rem; }
-  .pres__ig { display: inline-block; font-size: clamp(2rem, 4.6vw, 4.4rem); font-style: italic; line-height: 1.1; text-decoration: none; border-bottom: 1px solid currentColor; margin: 1rem 0 1.5rem; word-break: break-word; transition: color 0.3s; }
+  .pres__ig { display: inline-block; font-size: clamp(1.9rem, 3.5vw, 3.6rem); white-space: nowrap; font-style: italic; line-height: 1.1; text-decoration: none; border-bottom: 1px solid currentColor; margin: 1rem 0 1.5rem; transition: color 0.3s; }
   .pres__ig:hover { color: var(--bottle-2); }
   .pres__press a { display: inline-flex; min-height: 44px; align-items: center; }
   .pres__feed { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
