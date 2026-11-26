@@ -1,0 +1,52 @@
+---
+/** Shared accessible lightbox (native <dialog>: focus trap, Escape, focus return in chrome.ts). */
+import { site } from '../data/site';
+---
+<dialog id="lightbox" class="lb" aria-labelledby="lb-title">
+  <div class="lb__bar">
+    <span class="lb__count" data-lb-count aria-live="polite"></span>
+    <div class="lb__nav">
+      <button type="button" data-lb-prev aria-label="Image précédente">←</button>
+      <button type="button" data-lb-next aria-label="Image suivante">→</button>
+      <button type="button" data-close class="lb__x">Fermer</button>
+    </div>
+  </div>
+  <div class="lb__body">
+    <div class="lb__stage" data-lb-stage></div>
+    <div class="lb__info">
+      <p class="kicker"><span data-lb-line></span> · référence de démonstration</p>
+      <h2 id="lb-title" class="lb__ref serif" data-lb-ref></h2>
+      <p class="lb__shot"><span class="kicker">Photographie à venir</span><br />Prise de vue proposée : <span data-lb-shot></span></p>
+      <a class="btn btn--solid lb__cta" href={site.instagram.dm} target="_blank" rel="noopener noreferrer">Demander ce modèle<span class="sr-only"> sur Instagram (nouvel onglet)</span></a>
+      <p class="small muted">Mentionnez la référence dans votre message Instagram. Disponibilité, délais et prix : à confirmer directement avec la maison.</p>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .lb { width: 100%; height: 100%; height: 100dvh; margin: 0; background: var(--paper); color: var(--ink); display: none; flex-direction: column; }
+  .lb[open] { display: flex; animation: lbIn 0.45s var(--ease); }
+  @keyframes lbIn { from { opacity: 0; } }
+  .lb__bar { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem var(--gutter); border-bottom: 1px solid var(--line); }
+  .lb__count { font: 500 0.75rem/1 var(--sans); letter-spacing: 0.14em; font-variant-numeric: tabular-nums; }
+  .lb__nav { display: flex; gap: 0.4rem; }
+  .lb__nav button { min-width: 44px; min-height: 44px; background: none; border: 1px solid var(--line); font: 500 1rem/1 var(--sans); }
+  .lb__nav .lb__x { font: 600 0.6875rem/1 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; padding: 0 1rem; }
+  .lb__nav button:hover { border-color: var(--ink); }
+  .lb__body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 24rem; }
+  .lb__stage { min-height: 0; display: grid; place-items: center; padding: var(--gutter); background: var(--paper-2); touch-action: pan-y; }
+  .lb__stage :global(.plate) { height: 100%; width: auto; max-width: 100%; aspect-ratio: 4 / 5; animation: plIn 0.6s var(--ease); }
+  @keyframes plIn { from { opacity: 0; transform: scale(0.985); } }
+  .lb__info { padding: clamp(1.5rem, 3vw, 3rem) var(--gutter); display: flex; flex-direction: column; gap: 1rem; justify-content: flex-end; }
+  .lb__ref { font-size: clamp(2.6rem, 5vw, 4.5rem); line-height: 1; }
+  .lb__shot { color: var(--ink-2); margin: 0; }
+  .lb__cta { width: 100%; }
+  @media (max-width: 860px) {
+    .lb__body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+    .lb__stage { padding: 1rem; }
+    .lb__stage :global(.plate) { height: 100%; }
+    .lb__info { padding: 1rem var(--gutter) calc(1rem + env(safe-area-inset-bottom)); gap: 0.6rem; }
+    .lb__ref { font-size: 2.2rem; }
+    .lb__info > .small { display: none; }
+  }
+</style>
