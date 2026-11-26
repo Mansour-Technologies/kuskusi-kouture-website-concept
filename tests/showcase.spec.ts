@@ -39,6 +39,7 @@ test('anchor navigation scrolls to each section', async ({ page }) => {
   await page.goto('');
   for (const id of SECTIONS) {
     await page.locator(`.hdr__nav a[href$="#${id}"]`).click();
+    await page.waitForTimeout(100);
     await expect(page).toHaveURL(new RegExp(`#${id}$`));
     await expect.poll(async () => page.locator(`#${id}`).evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeLessThan(120);
   }
@@ -56,7 +57,7 @@ test('mobile menu: keyboard open, Escape closes with focus return, link navigate
   await expect(menu).toBeHidden();
   await expect(btn).toBeFocused();
   await btn.click();
-  await menu.getByRole('link', { name: /Contact/ }).click();
+  await menu.locator('.menu__list a[href$="#contact"]').click();
   await expect(menu).toBeHidden();
   await expect(page).toHaveURL(/#contact$/);
   await expect.poll(async () => page.locator('#contact').evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeLessThan(120);
@@ -71,27 +72,67 @@ test('desktop nav is keyboard reachable after the skip link', async ({ page }) =
   await expect(page.locator('.hdr__nav a').first()).toBeFocused();
 });
 
-test('gallery lightbox: opens on click, next/prev + arrows, Escape closes, focus returns', async ({ page }) => {
+test('vestiaire: 12 real pieces; piece dialog opens, next/prev + arrows, Escape closes, focus returns', async ({ page }) => {
   await page.goto('');
-  const items = page.locator('[data-lb]');
-  expect(await items.count()).toBe(14);
+  const items = page.locator('.card [data-fiche]');
+  expect(await items.count()).toBe(12);
   const first = items.nth(0);
   await first.scrollIntoViewIfNeeded();
   await first.click();
   const lb = page.locator('#lightbox');
   await expect(lb).toBeVisible();
-  await expect(lb.locator('[data-lb-ref]')).toHaveText('KA-01');
-  await expect(lb.locator('[data-lb-count]')).toHaveText('1 / 14');
+  await expect(lb.locator('[data-lb-name]')).toHaveText('Robe longue portefeuille — safran');
+  await expect(lb.locator('[data-lb-count]')).toHaveText('1 / 12');
+  await expect(lb.locator('[data-lb-caption]')).toContainText('bas à volants');
+  await expect(lb.locator('[data-lb-post]')).toHaveAttribute('href', 'https://www.instagram.com/p/DW9OnKljNCm/');
   await expect(lb.locator('[data-lb-stage] .plate')).toHaveCount(1);
   await lb.locator('[data-lb-next]').click();
-  await expect(lb.locator('[data-lb-ref]')).toHaveText('KA-02');
+  await expect(lb.locator('[data-lb-count]')).toHaveText('2 / 12');
   await page.keyboard.press('ArrowLeft');
   await page.keyboard.press('ArrowLeft');
-  await expect(lb.locator('[data-lb-ref]')).toHaveText('TE-04');
+  await expect(lb.locator('[data-lb-count]')).toHaveText('12 / 12');
   await expect(lb.locator('a.lb__cta')).toHaveAttribute('href', 'https://ig.me/m/kuskusikouture');
   await page.keyboard.press('Escape');
   await expect(lb).toBeHidden();
   await expect(first).toBeFocused();
+});
+
+test('hero arch is a button that opens the matching piece', async ({ page }) => {
+  await page.goto('');
+  const arch = page.locator('.hero .arch[data-fiche="robe-safran"]');
+  await expect(arch).toHaveAttribute('aria-label', /Robe longue portefeuille — safran/);
+  await arch.click();
+  await expect(page.locator('#lightbox [data-lb-name]')).toHaveText('Robe longue portefeuille — safran');
+});
+
+test('official Instagram embeds load only on click; drawings stand in before (no request to Instagram)', async ({ page }) => {
+  const igRequests: string[] = [];
+  page.on('request', (r) => { if (/instagram\.com|cdninstagram|facebook/.test(r.url())) igRequests.push(r.url()); });
+  await page.goto('');
+  await page.waitForLoadState('networkidle');
+  await page.locator('#instagram').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  expect(await page.locator('iframe').count()).toBe(0);
+  expect(igRequests, igRequests.join('\n')).toEqual([]);
+  await expect(page.locator('#instagram [data-embed-box] .plate')).toHaveCount(3);
+  // inline facade
+  const facade = page.locator('#instagram [data-embed]').first();
+  await expect(facade).toHaveAttribute('data-embed', /^https:\/\/www\.instagram\.com\/p\/[\w-]+\/embed\/$/);
+  await facade.click();
+  const frame = page.locator('#instagram [data-embed-box] iframe').first();
+  await expect(frame).toHaveAttribute('src', 'https://www.instagram.com/p/DWytRK9DEOI/embed/');
+  await expect(frame).toHaveAttribute('title', /Publication Instagram officielle/);
+  await expect(page.locator('#instagram [data-embed-box].is-loaded .plate')).toBeHidden();
+  // piece dialog
+  await page.locator('.card [data-fiche="jellaba-citron"]').click();
+  const lb = page.locator('#lightbox');
+  await expect(lb.locator('iframe')).toHaveCount(0);
+  await lb.locator('[data-lb-embed]').click();
+  await expect(lb.locator('[data-lb-stage] iframe')).toHaveAttribute('src', 'https://www.instagram.com/p/DWzf6NTDaio/embed/');
+  await expect(lb.locator('[data-lb-embed]')).toBeHidden();
+  await lb.locator('[data-lb-next]').click();
+  await expect(lb.locator('[data-lb-stage] .plate')).toHaveCount(1);
+  await expect(lb.locator('[data-lb-embed]')).toBeVisible();
 });
 
 test('every external contact/social link is https, verified host, new tab with noopener', async ({ page }) => {
