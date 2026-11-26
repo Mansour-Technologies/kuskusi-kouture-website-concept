@@ -1,0 +1,45 @@
+---
+import Plate from './Plate.astro';
+import { lineBySlug, colours, type Piece } from '../data/pieces';
+import { url } from '../lib/url';
+
+interface Props { piece: Piece; class?: string; ar?: string; headingLevel?: 'h2' | 'h3'; feature?: boolean; }
+const { piece, ar = '3 / 4', headingLevel = 'h3', feature = false } = Astro.props;
+const line = lineBySlug(piece.line);
+const H = headingLevel;
+---
+<article class:list={['card', Astro.props.class]} data-line={piece.line} data-colours={piece.colours.join(' ')} data-feature={feature ? '' : undefined}>
+  <a class="card__a" href={url(`creations/${piece.slug}/`)}>
+    <div class="card__img" style={`--ar:${ar}`}>
+      <Plate silhouette={line.silhouette} colour={piece.colours[0]} shot={piece.views[0].shot} numeral={piece.no} uid={`card-${piece.slug}`} vt={`piece-${piece.slug}`} decorative />
+      <Plate class="card__alt" silhouette={line.silhouette} colour={piece.colours[0]} crop="detail" shot={piece.views[1].shot} caption="none" uid={`card-d-${piece.slug}`} decorative />
+    </div>
+    <div class="card__meta">
+      <p class="kicker">Étude n°{piece.no} · {line.singular}</p>
+      <H class="card__t">{piece.title}</H>
+      <p class="card__s small muted">Pièce de démonstration · Prix sur demande</p>
+    </div>
+  </a>
+  <ul class="card__dots" aria-label="Coloris proposés">
+    {piece.colours.map((c) => (
+      <li title={colours[c].name} style={`--c:${colours[c].cloth};--s:${colours[c].stitch}`} data-pois={colours[c].pattern ? '' : undefined}><span class="sr-only">{colours[c].name}</span></li>
+    ))}
+  </ul>
+</article>
+
+<style>
+  .card { position: relative; }
+  .card__a { display: block; text-decoration: none; }
+  .card__img { position: relative; overflow: hidden; }
+  .card__img :global(.plate) { --ar: inherit; aspect-ratio: var(--ar); }
+  .card__img :global(.card__alt) { position: absolute; inset: 0; opacity: 0; transition: opacity 0.7s var(--ease); }
+  .card__a:hover :global(.card__alt), .card__a:focus-visible :global(.card__alt) { opacity: 1; }
+  .card__a:hover :global(.plate__figure) { transform: scale(1.03); }
+  .card__meta { padding-top: 0.9rem; }
+  .card__t { font-size: clamp(1.3rem, 1.8vw, 1.7rem); line-height: 1.1; margin: 0.35rem 0 0.25rem; }
+  .card__s { margin: 0; }
+  .card__dots { list-style: none; display: flex; gap: 0.4rem; margin: 0.6rem 0 0; padding: 0; }
+  .card__dots li { width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px var(--line); }
+  .card__dots li[data-pois] { background: radial-gradient(circle, var(--s) 1.2px, var(--c) 1.5px) 0 0 / 4px 4px; }
+  @media (hover: none) { .card__img :global(.card__alt) { display: none; } }
+</style>

@@ -1,0 +1,168 @@
+---
+/**
+ * Art-directed editorial placeholder ("plate").
+ * An original SVG composition — silhouette line, stitch dots, numeral — standing in for a
+ * photograph the house will supply. Never a copy of a brand image.
+ */
+import type { Silhouette } from '../data/pieces';
+import { colours } from '../data/pieces';
+
+interface Props {
+  silhouette: Silhouette;
+  colour: string;
+  crop?: 'full' | 'detail' | 'back' | 'motion';
+  shot: string;
+  numeral?: string;
+  caption?: 'full' | 'tag' | 'none';
+  class?: string;
+  uid: string;
+  vt?: string;
+  eager?: boolean;
+  decorative?: boolean;
+  field?: string;
+}
+const { silhouette, colour, crop = 'full', shot, numeral, caption = 'tag', uid, vt, decorative = false, field } = Astro.props;
+const c = colours[colour] ?? colours.vert;
+const id = `p-${uid}`.replace(/[^a-z0-9-]/gi, '');
+
+const shapes: Record<Silhouette, { body: string; extra?: string; trims: string[]; buttons: [number, number] }> = {
+  kaftan: {
+    body: 'M104 50 L134 40 Q150 62 166 40 L196 50 C228 70 262 150 276 214 L232 226 C222 190 212 160 204 140 C212 230 226 320 238 386 L62 386 C74 320 88 230 96 140 C88 160 78 190 68 226 L24 214 C38 150 72 70 104 50 Z',
+    trims: ['M141 56 L141 384', 'M159 56 L159 384', 'M134 42 Q150 66 166 42', 'M27 208 L70 220', 'M230 220 L273 208', 'M64 380 L236 380'],
+    buttons: [66, 300],
+  },
+  djellaba: {
+    extra: 'M116 62 C110 28 136 6 150 2 C164 6 190 28 184 62 Z',
+    body: 'M100 62 L136 52 Q150 70 164 52 L200 62 C220 90 238 160 248 222 L222 232 C214 190 206 160 200 132 C204 220 214 310 222 388 L78 388 C86 310 96 220 100 132 C94 160 86 190 78 232 L52 222 C62 160 80 90 100 62 Z',
+    trims: ['M150 70 L150 386', 'M136 54 Q150 74 164 54', 'M55 216 L80 226', 'M220 226 L245 216'],
+    buttons: [76, 250],
+  },
+  gandoura: {
+    body: 'M108 56 L138 46 L150 82 L162 46 L192 56 L236 96 L214 124 L200 112 C204 200 208 300 214 382 L86 382 C92 300 96 200 100 112 L86 124 L64 96 Z',
+    trims: ['M138 48 L150 86 L162 48', 'M132 50 L150 98 L168 50', 'M88 374 L212 374'],
+    buttons: [104, 150],
+  },
+  tenue: {
+    extra: 'M104 236 L196 236 L224 390 L162 390 L150 276 L138 390 L76 390 Z',
+    body: 'M108 52 L136 44 Q150 60 164 44 L192 52 L246 168 L226 178 L198 122 L204 238 L96 238 L102 122 L74 178 L54 168 Z',
+    trims: ['M136 46 Q150 64 164 46', 'M98 232 L202 232', 'M150 62 L150 226'],
+    buttons: [70, 214],
+  },
+};
+const s = shapes[silhouette];
+const viewBox = crop === 'detail' ? '96 24 108 144' : '0 0 300 400';
+const btns: number[] = [];
+if (crop !== 'back') for (let y = s.buttons[0]; y <= s.buttons[1]; y += crop === 'detail' ? 9 : 13) btns.push(y);
+const fill = c.pattern === 'pois' ? `url(#${id}-pois)` : c.cloth;
+const label = `Emplacement photo — ${shot}`;
+---
+<figure class:list={['plate', `plate--${crop}`, Astro.props.class]} style={`--field:${field ?? c.field};--cloth:${c.cloth};--stitch:${c.stitch};${vt ? `view-transition-name:${vt};` : ''}`}>
+  <svg viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role={decorative ? undefined : 'img'} aria-label={decorative ? undefined : label} aria-hidden={decorative ? 'true' : undefined}>
+    <defs>
+      {c.pattern === 'pois' && (
+        <pattern id={`${id}-pois`} width="14" height="14" patternUnits="userSpaceOnUse">
+          <rect width="14" height="14" fill={c.cloth} />
+          <circle cx="4" cy="4" r="2.6" fill={c.stitch} />
+          <circle cx="11" cy="11" r="2.6" fill={c.stitch} />
+        </pattern>
+      )}
+    </defs>
+    {numeral && crop !== 'detail' && (
+      <text class="plate__num" x="150" y="300" text-anchor="middle">{numeral}</text>
+    )}
+    <g class="plate__figure" transform={crop === 'motion' ? 'skewX(-5) translate(20 0)' : undefined}>
+      {crop === 'motion' && (
+        <g opacity=".22" transform="translate(-34 0)">
+          {s.extra && <path d={s.extra} fill={fill} />}
+          <path d={s.body} fill={fill} />
+        </g>
+      )}
+      {s.extra && <path d={s.extra} fill={fill} />}
+      {s.extra && silhouette === 'djellaba' && <path d={s.extra} fill="#000" opacity=".18" />}
+      <path d={s.body} fill={fill} />
+      <g class="plate__stitch" fill="none" stroke={c.stitch} stroke-linecap="round" stroke-width={crop === 'detail' ? 1.6 : 2.2} stroke-dasharray={crop === 'detail' ? '0.1 4' : '0.1 6'}>
+        {s.trims.map((d) => <path d={d} />)}
+      </g>
+      {btns.map((y) => <circle cx="150" cy={y} r={crop === 'detail' ? 2.4 : 2.8} fill={c.stitch} />)}
+    </g>
+  </svg>
+  {caption === 'tag' && <span class="plate__tag" aria-hidden="true">Photo à venir</span>}
+  {caption === 'full' && (
+    <figcaption class="plate__cap">
+      <span>Photographie à venir</span> Prise de vue proposée : {shot}
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  .plate {
+    position: relative;
+    margin: 0;
+    background: var(--field);
+    overflow: hidden;
+    isolation: isolate;
+    aspect-ratio: var(--ar, 3 / 4);
+    width: 100%;
+  }
+  .plate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--grain);
+    opacity: 0.16;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .plate svg {
+    position: absolute;
+    inset: 6% 0 0;
+    width: 100%;
+    height: 94%;
+    display: block;
+  }
+  .plate--detail svg { inset: 0; height: 100%; }
+  .plate__num {
+    font-family: var(--serif);
+    font-size: 260px;
+    font-style: italic;
+    font-variation-settings: 'opsz' 96;
+    fill: currentColor;
+    color: var(--cloth);
+    opacity: 0.09;
+  }
+  .plate__figure { transition: transform 1.2s var(--ease); transform-origin: 50% 60%; }
+  .plate__tag {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.7rem;
+    z-index: 1;
+    font: 500 0.625rem/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+    padding: 0.35rem 0.5rem;
+  }
+  .plate__cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    right: auto;
+    max-width: min(88%, 26rem);
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    font: 400 0.6875rem/1.4 var(--sans);
+    color: var(--ink);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+  }
+  .plate__cap span {
+    display: block;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.625rem;
+    margin-bottom: 0.15rem;
+  }
+</style>

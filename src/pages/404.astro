@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+---
+<Base title="Page introuvable">
+  <section class="wrap nf">
+    <p class="kicker">Erreur 404</p>
+    <h1 class="nf-t">Cette page <em>n’existe pas.</em></h1>
+    <p><a class="link" href={url()}>Retour à l’accueil</a></p>
+  </section>
+</Base>
+<style>
+  .nf { padding-block: clamp(4rem, 12vw, 10rem); }
+  .nf-t { font-size: var(--fs-1); margin: 1rem 0 2rem; }
+</style>

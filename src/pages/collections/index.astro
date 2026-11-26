@@ -1,0 +1,116 @@
+---
+import Base from '../../layouts/Base.astro';
+import PieceCard from '../../components/PieceCard.astro';
+import { lines, pieces, colours } from '../../data/pieces';
+import { url } from '../../lib/url';
+const usedColours = [...new Set(pieces.flatMap((p) => p.colours))];
+---
+<Base title="Créations" current="collections/" description="Les créations — kaftans, djellabas, gandouras et tenues. Catalogue de démonstration, concept non officiel.">
+  <section class="wrap c-head">
+    <p class="kicker">Créations — catalogue de démonstration</p>
+    <h1 class="c-title">Toutes les <em>créations</em></h1>
+    <p class="muted measure">Quatre lignes confirmées par la présentation publique de la maison. Les douze « études » ci-dessous sont des pièces de démonstration, à remplacer par les modèles réels.</p>
+    <nav class="c-lines" aria-label="Lignes">
+      {lines.map((l) => <a href={url(`collections/${l.slug}/`)}><span>{l.no}</span>{l.name}</a>)}
+    </nav>
+  </section>
+
+  <div class="wrap c-bar" data-filters>
+    <div class="c-group" role="group" aria-label="Filtrer par ligne">
+      <button type="button" aria-pressed="true" data-line="">Tout</button>
+      {lines.map((l) => <button type="button" aria-pressed="false" data-line={l.slug}>{l.name}</button>)}
+    </div>
+    <label class="c-sel">
+      <span class="kicker">Coloris</span>
+      <select data-colour>
+        <option value="">Tous les coloris</option>
+        {usedColours.map((c) => <option value={c}>{colours[c].name}</option>)}
+      </select>
+    </label>
+    <p class="c-count small" aria-live="polite" data-count>{pieces.length} pièces</p>
+  </div>
+
+  <section class="wrap" aria-label="Résultats">
+    <div class="c-grid" data-grid>
+      {pieces.map((p, i) => <PieceCard piece={p} feature={i % 6 === 0} />)}
+    </div>
+    <div class="c-empty" data-empty hidden>
+      <p class="serif">Aucune pièce ne correspond.</p>
+      <button type="button" class="link" data-reset>Réinitialiser les filtres</button>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-filters]')!;
+  const btns = [...root.querySelectorAll<HTMLButtonElement>('[data-line]')];
+  const sel = root.querySelector<HTMLSelectElement>('[data-colour]')!;
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-grid] .card')];
+  const count = root.querySelector('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const params = new URLSearchParams(location.search);
+  let line = params.get('ligne') ?? '';
+  let colour = params.get('coloris') ?? '';
+  if (!btns.some((b) => b.dataset.line === line)) line = '';
+  if (![...sel.options].some((o) => o.value === colour)) colour = '';
+  sel.value = colour;
+
+  const apply = (push = true) => {
+    let n = 0;
+    const run = () => {
+      cards.forEach((c) => {
+        const ok = (!line || c.dataset.line === line) && (!colour || c.dataset.colours!.split(' ').includes(colour));
+        c.hidden = !ok;
+        c.toggleAttribute('data-feature', ok && n % 6 === 0);
+        if (ok) n++;
+      });
+      btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.line === line)));
+      count.textContent = `${n} pièce${n > 1 ? 's' : ''}`;
+      empty.hidden = n > 0;
+    };
+    const d = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+    if (d.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches && push) d.startViewTransition(run);
+    else run();
+    if (push) {
+      const q = new URLSearchParams();
+      if (line) q.set('ligne', line);
+      if (colour) q.set('coloris', colour);
+      history.replaceState(null, '', q.toString() ? `?${q}` : location.pathname);
+    }
+  };
+  btns.forEach((b) => b.addEventListener('click', () => { line = b.dataset.line ?? ''; apply(); }));
+  sel.addEventListener('change', () => { colour = sel.value; apply(); });
+  document.querySelector('[data-reset]')!.addEventListener('click', () => { line = ''; colour = ''; sel.value = ''; apply(); btns[0].focus(); });
+  apply(false);
+</script>
+
+<style>
+  .c-head { padding-top: clamp(2.5rem, 7vw, 6rem); }
+  .c-title { font-size: var(--fs-1); margin: 0.9rem 0 1.25rem; }
+  .c-lines { display: flex; flex-wrap: wrap; gap: 0.25rem 2rem; margin-top: 2rem; }
+  .c-lines a { font-family: var(--serif); font-size: 1.5rem; text-decoration: none; display: inline-flex; gap: 0.5rem; align-items: baseline; min-height: 44px; }
+  .c-lines a:hover { font-style: italic; }
+  .c-lines span { font: 500 0.6875rem/1 var(--sans); letter-spacing: 0.14em; }
+  .c-bar { position: sticky; top: var(--header-h); z-index: 20; background: var(--paper); display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: center; padding-block: 0.75rem; margin-block: 2.5rem 2rem; border-block: 1px solid var(--line); }
+  .c-group { display: flex; gap: 0.25rem; overflow-x: auto; scrollbar-width: none; margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); }
+  .c-group button { flex: none; min-height: 44px; padding: 0 1rem; background: none; border: 1px solid transparent; font: 600 0.6875rem/1 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; }
+  .c-group button[aria-pressed='true'] { border-color: var(--ink); }
+  .c-group button:hover { border-color: var(--line); }
+  .c-sel { display: inline-flex; align-items: center; gap: 0.75rem; }
+  .c-sel select { min-height: 44px; border: 1px solid var(--line); background: var(--paper); padding: 0 2rem 0 0.75rem; }
+  .c-count { margin: 0 0 0 auto; color: var(--ink-2); }
+  .c-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(2.5rem, 4vw, 4rem) var(--gutter); }
+  .c-grid > :global(.card[data-feature]) { grid-column: span 2; grid-row: span 2; }
+  .c-grid > :global(.card:nth-of-type(6n + 1) .plate) { aspect-ratio: 4 / 5; }
+  .c-grid > :global(.card[hidden]) { display: none; }
+  .c-empty { padding: 4rem 0; }
+  .c-empty .serif { font-size: var(--fs-2); }
+  @media (max-width: 1024px) { .c-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 860px) {
+    .c-bar { margin-inline: 0; }
+    .c-grid { grid-template-columns: 1fr 1fr; gap: 2.25rem 0.75rem; }
+    .c-grid > :global(.card[data-feature]) { grid-column: 1 / -1; grid-row: auto; }
+    .c-count { margin: 0; }
+    .c-group { width: calc(100% + var(--gutter) * 2); }
+  }
+</style>
