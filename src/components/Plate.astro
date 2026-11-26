@@ -1,168 +1,272 @@
 ---
 /**
- * Art-directed editorial placeholder ("plate").
- * An original SVG composition — silhouette line, stitch dots, numeral — standing in for a
- * photograph the house will supply. Never a copy of a brand image.
+ * Original art-directed drawing of a real Kuskusi Kouture piece, inside a riad arch.
+ * It ECHOES the official photograph (colour, silhouette, details, setting) — it is not a copy
+ * of it. The real photograph is reachable through Instagram's official embed (click-to-load).
  */
-import type { Silhouette } from '../data/collections';
-import { colours } from '../data/collections';
+import type { Piece } from '../data/collections';
+interface Props { piece: Piece; uid: string; eager?: boolean; class?: string }
+const { piece, uid, class: cls } = Astro.props;
+const [c0, c1, c2] = piece.colors;
+const id = (s: string) => `${s}-${uid}`;
+const skin = '#C79B7D';
+const hair = '#33241D';
+const g = piece.garment;
+const s = piece.scene;
 
-interface Props {
-  silhouette: Silhouette;
-  colour: string;
-  crop?: 'full' | 'detail' | 'back' | 'motion';
-  shot: string;
-  numeral?: string;
-  caption?: 'full' | 'tag' | 'none';
-  class?: string;
-  uid: string;
-  vt?: string;
-  eager?: boolean;
-  decorative?: boolean;
-  field?: string;
-}
-const { silhouette, colour, crop = 'full', shot, numeral, caption = 'tag', uid, vt, decorative = false, field } = Astro.props;
-const c = colours[colour] ?? colours.vert;
-const id = `p-${uid}`.replace(/[^a-z0-9-]/gi, '');
-
-const shapes: Record<Silhouette, { body: string; extra?: string; trims: string[]; buttons: [number, number] }> = {
-  kaftan: {
-    body: 'M104 50 L134 40 Q150 62 166 40 L196 50 C228 70 262 150 276 214 L232 226 C222 190 212 160 204 140 C212 230 226 320 238 386 L62 386 C74 320 88 230 96 140 C88 160 78 190 68 226 L24 214 C38 150 72 70 104 50 Z',
-    trims: ['M141 56 L141 384', 'M159 56 L159 384', 'M134 42 Q150 66 166 42', 'M27 208 L70 220', 'M230 220 L273 208', 'M64 380 L236 380'],
-    buttons: [66, 300],
-  },
-  djellaba: {
-    extra: 'M116 62 C110 28 136 6 150 2 C164 6 190 28 184 62 Z',
-    body: 'M100 62 L136 52 Q150 70 164 52 L200 62 C220 90 238 160 248 222 L222 232 C214 190 206 160 200 132 C204 220 214 310 222 388 L78 388 C86 310 96 220 100 132 C94 160 86 190 78 232 L52 222 C62 160 80 90 100 62 Z',
-    trims: ['M150 70 L150 386', 'M136 54 Q150 74 164 54', 'M55 216 L80 226', 'M220 226 L245 216'],
-    buttons: [76, 250],
-  },
-  gandoura: {
-    body: 'M108 56 L138 46 L150 82 L162 46 L192 56 L236 96 L214 124 L200 112 C204 200 208 300 214 382 L86 382 C92 300 96 200 100 112 L86 124 L64 96 Z',
-    trims: ['M138 48 L150 86 L162 48', 'M132 50 L150 98 L168 50', 'M88 374 L212 374'],
-    buttons: [104, 150],
-  },
-  tenue: {
-    extra: 'M104 236 L196 236 L224 390 L162 390 L150 276 L138 390 L76 390 Z',
-    body: 'M108 52 L136 44 Q150 60 164 44 L192 52 L246 168 L226 178 L198 122 L204 238 L96 238 L102 122 L74 178 L54 168 Z',
-    trims: ['M136 46 Q150 64 164 46', 'M98 232 L202 232', 'M150 62 L150 226'],
-    buttons: [70, 214],
-  },
+// helpers
+const waves = (x1: number, x2: number, y: number, n: number, d: number) => {
+  const step = (x2 - x1) / n;
+  let p = '';
+  for (let i = 0; i < n; i++) {
+    const a = x2 - i * step;
+    p += ` Q${(a - step / 2).toFixed(1)} ${y - d} ${(a - step).toFixed(1)} ${y}`;
+  }
+  return p;
 };
-const s = shapes[silhouette];
-const viewBox = crop === 'detail' ? '96 24 108 144' : '0 0 300 400';
-const btns: number[] = [];
-if (crop !== 'back') for (let y = s.buttons[0]; y <= s.buttons[1]; y += crop === 'detail' ? 9 : 13) btns.push(y);
-const fill = c.pattern === 'pois' ? `url(#${id}-pois)` : c.cloth;
-const label = `Emplacement photo — ${shot}`;
+const dots = (x: number, y1: number, y2: number, step: number) => {
+  const out: number[] = [];
+  for (let y = y1; y <= y2; y += step) out.push(y);
+  return out.map((y) => ({ x, y }));
+};
+const arch = 'M0 400 V150 C0 72 62 20 150 4 C238 20 300 72 300 150 V400 Z';
+const fill = piece.id === 'gandoura-fleurie' ? `url(#${id('flo')})` : piece.id === 'gandoura-satin' ? `url(#${id('sat')})` : g === 'gandoura' ? `url(#${id('dam')})` : c0;
 ---
-<figure class:list={['plate', `plate--${crop}`, Astro.props.class]} style={`--field:${field ?? c.field};--cloth:${c.cloth};--stitch:${c.stitch};${vt ? `view-transition-name:${vt};` : ''}`}>
-  <svg viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role={decorative ? undefined : 'img'} aria-label={decorative ? undefined : label} aria-hidden={decorative ? 'true' : undefined}>
+<figure class:list={['plate', `plate--${s}`, cls]} data-piece={piece.id}>
+  <svg viewBox="0 0 300 400" role="img" aria-label={`Illustration originale : ${piece.echo}`} preserveAspectRatio="xMidYMid slice">
     <defs>
-      {c.pattern === 'pois' && (
-        <pattern id={`${id}-pois`} width="14" height="14" patternUnits="userSpaceOnUse">
-          <rect width="14" height="14" fill={c.cloth} />
-          <circle cx="4" cy="4" r="2.6" fill={c.stitch} />
-          <circle cx="11" cy="11" r="2.6" fill={c.stitch} />
-        </pattern>
-      )}
+      <clipPath id={id('arch')}><path d={arch} /></clipPath>
+      <linearGradient id={id('light')} x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.55" />
+        <stop offset="0.55" stop-color="#fff" stop-opacity="0" />
+      </linearGradient>
+      <linearGradient id={id('sat')} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color={c1} /><stop offset="0.3" stop-color={c2} /><stop offset="0.55" stop-color={c0} /><stop offset="0.8" stop-color={c2} /><stop offset="1" stop-color={c1} />
+      </linearGradient>
+      <linearGradient id={id('fold')} x1="0" y1="0" x2="1" y2="0" spreadMethod="repeat">
+        <stop offset="0" stop-color="#000" stop-opacity="0" /><stop offset="0.5" stop-color="#000" stop-opacity="0.09" /><stop offset="1" stop-color="#000" stop-opacity="0" />
+      </linearGradient>
+      <pattern id={id('zel')} width="16" height="16" patternUnits="userSpaceOnUse">
+        <rect width="16" height="16" fill="#2F6B5E" />
+        <path d="M8 1 L10 6 L15 8 L10 10 L8 15 L6 10 L1 8 L6 6 Z" fill="#F2EBE1" />
+        <circle cx="8" cy="8" r="1.6" fill="#C6923A" />
+      </pattern>
+      <pattern id={id('lat')} width="18" height="18" patternUnits="userSpaceOnUse">
+        <rect width="18" height="18" fill="#6B3F26" />
+        <path d="M9 2 L16 9 L9 16 L2 9 Z M0 0 L4 4 M18 0 L14 4 M0 18 L4 14 M18 18 L14 14" fill="none" stroke="#4A2817" stroke-width="1.6" />
+      </pattern>
+      <pattern id={id('broc')} width="14" height="14" patternUnits="userSpaceOnUse">
+        <rect width="14" height="14" fill="#3E6E68" />
+        <path d="M7 2 L9 7 L7 12 L5 7 Z" fill="#C9A45C" opacity="0.8" />
+      </pattern>
+      <pattern id={id('dam')} width="22" height="26" patternUnits="userSpaceOnUse">
+        <rect width="22" height="26" fill={c0} />
+        <path d="M11 3 C15 8 15 12 11 16 C7 12 7 8 11 3 Z M0 20 C3 22 3 25 0 26 M22 20 C19 22 19 25 22 26" fill={c1} opacity="0.55" />
+      </pattern>
+      <pattern id={id('flo')} width="34" height="34" patternUnits="userSpaceOnUse">
+        <rect width="34" height="34" fill={c0} />
+        <circle cx="10" cy="10" r="4.5" fill={c1} /><circle cx="10" cy="10" r="1.6" fill="#fff" />
+        <path d="M15 13 C20 12 22 16 20 19 C17 18 15 16 15 13 Z" fill={c2} />
+        <circle cx="26" cy="26" r="3.2" fill={c1} opacity="0.8" />
+        <path d="M22 30 C19 33 15 32 15 29 C18 28 20 28 22 30 Z" fill={c2} />
+      </pattern>
+      <pattern id={id('lace')} width="10" height="10" patternUnits="userSpaceOnUse">
+        <rect width="10" height="10" fill={c0} />
+        <circle cx="5" cy="5" r="2.1" fill="none" stroke={c1} stroke-width="1" />
+        <circle cx="0" cy="0" r="1" fill={c1} /><circle cx="10" cy="10" r="1" fill={c1} />
+      </pattern>
+      <pattern id={id('jac')} width="14" height="14" patternUnits="userSpaceOnUse">
+        <rect width="14" height="14" fill={c0} />
+        <path d="M7 2 C10 5 10 9 7 12 C4 9 4 5 7 2 Z" fill={c1} opacity="0.7" />
+      </pattern>
+      <pattern id={id('emb')} width="8" height="8" patternUnits="userSpaceOnUse">
+        <rect width="8" height="8" fill={c2} />
+        <path d="M4 1 L7 4 L4 7 L1 4 Z" fill="none" stroke={c0} stroke-width="0.9" />
+      </pattern>
+      <pattern id={id('gold')} width="9" height="9" patternUnits="userSpaceOnUse">
+        <rect width="9" height="9" fill={c2} />
+        <circle cx="4.5" cy="4.5" r="1.6" fill="#F4E3B5" />
+      </pattern>
+      <pattern id={id('trop')} width="40" height="40" patternUnits="userSpaceOnUse">
+        <rect width="40" height="40" fill={c0} />
+        <path d="M4 30 C8 14 20 6 30 4 C26 16 18 26 4 30 Z" fill={c1} />
+        <path d="M6 28 L28 6" stroke={c0} stroke-width="0.8" />
+        <path d="M30 38 C30 30 36 26 40 26 C40 32 36 36 30 38 Z" fill={c2} />
+        <circle cx="34" cy="12" r="3" fill={c2} opacity="0.85" />
+      </pattern>
     </defs>
-    {numeral && crop !== 'detail' && (
-      <text class="plate__num" x="150" y="300" text-anchor="middle">{numeral}</text>
-    )}
-    <g class="plate__figure" transform={crop === 'motion' ? 'skewX(-5) translate(20 0)' : undefined}>
-      {crop === 'motion' && (
-        <g opacity=".22" transform="translate(-34 0)">
-          {s.extra && <path d={s.extra} fill={fill} />}
-          <path d={s.body} fill={fill} />
+
+    <g clip-path={`url(#${id('arch')})`}>
+      {/* ——— Scenes, after the settings observed in the official posts ——— */}
+      {s === 'riad' && (
+        <g>
+          <rect width="300" height="400" fill="#F2EBE1" />
+          <path d="M60 330 V160 C60 110 100 76 150 66 C200 76 240 110 240 160 V330 Z" fill="#E7DCCB" />
+          <path d="M78 330 V168 C78 124 110 94 150 86 C190 94 222 124 222 168 V330 Z" fill="#F7F1E8" />
+          <rect y="328" width="300" height="72" fill={`url(#${id('zel')})`} />
+          <rect y="326" width="300" height="4" fill="#C6923A" opacity="0.7" />
+          {[[22, 1], [278, -1]].map(([x, d]) => (
+            <g>
+              <path d={`M${x - 16} 300 L${x + 16} 300 L${x + 11} 336 L${x - 11} 336 Z`} fill="#B5673F" />
+              {[-60, -35, -12, 12, 35, 60].map((a) => (
+                <path d={`M${x} 300 Q${x + Math.sin((a * Math.PI) / 180) * 30} ${250} ${x + Math.sin((a * Math.PI) / 180) * 52 * d} ${240 + Math.abs(a) * 0.6}`} fill="none" stroke="#4C7A4F" stroke-width="5" stroke-linecap="round" />
+              ))}
+            </g>
+          ))}
         </g>
       )}
-      {s.extra && <path d={s.extra} fill={fill} />}
-      {s.extra && silhouette === 'djellaba' && <path d={s.extra} fill="#000" opacity=".18" />}
-      <path d={s.body} fill={fill} />
-      <g class="plate__stitch" fill="none" stroke={c.stitch} stroke-linecap="round" stroke-width={crop === 'detail' ? 1.6 : 2.2} stroke-dasharray={crop === 'detail' ? '0.1 4' : '0.1 6'}>
-        {s.trims.map((d) => <path d={d} />)}
-      </g>
-      {btns.map((y) => <circle cx="150" cy={y} r={crop === 'detail' ? 2.4 : 2.8} fill={c.stitch} />)}
+      {s === 'chaux' && (
+        <g>
+          <rect width="300" height="400" fill="#FBF8F3" />
+          <path d="M190 0 L300 0 L300 260 L120 400 L40 400 Z" fill={`url(#${id('light')})`} opacity="0.9" />
+          <rect x="0" y="0" width="300" height="400" fill="#EDE5DA" opacity="0.35" />
+          <rect y="352" width="300" height="48" fill="#EFE7DB" />
+          <path d="M236 352 C232 320 236 296 246 286 C256 296 260 320 256 352 Z" fill="#E3D6C3" />
+          <path d="M246 286 C240 250 226 236 214 230 M246 286 C252 248 266 236 276 232" fill="none" stroke="#8A9A72" stroke-width="2" />
+        </g>
+      )}
+      {s === 'velours' && (
+        <g>
+          <rect width="300" height="400" fill="#6E1E26" />
+          <rect width="300" height="400" fill={`url(#${id('fold')})`} transform="scale(0.09 1)" />
+          <rect width="300" height="400" fill={`url(#${id('fold')})`} transform="scale(0.05 1)" />
+          <rect y="356" width="300" height="44" fill="#4C1218" />
+        </g>
+      )}
+      {s === 'cedre' && (
+        <g>
+          <rect width="300" height="400" fill="#EFD9C2" />
+          <path d="M56 360 V150 C56 104 98 70 150 62 C202 70 244 104 244 150 V360 Z" fill={`url(#${id('lat')})`} />
+          <path d="M56 360 V150 C56 104 98 70 150 62 C202 70 244 104 244 150 V360" fill="none" stroke="#3E2214" stroke-width="5" />
+          <line x1="150" y1="62" x2="150" y2="360" stroke="#3E2214" stroke-width="3" />
+          {[[20, 40], [34, 22], [12, 70], [44, 54], [262, 30], [280, 58], [250, 52]].map(([x, y]) => <circle cx={x} cy={y} r="9" fill="#C2457A" opacity="0.85" />)}
+          <rect y="360" width="300" height="40" fill="#D8BFA4" />
+        </g>
+      )}
+      {s === 'salon' && (
+        <g>
+          <rect width="300" height="400" fill="#EADCCB" />
+          <rect x="40" y="40" width="220" height="150" fill="#8B9583" stroke="#B8924A" stroke-width="8" />
+          <path d="M44 150 C90 120 130 160 170 130 C210 104 240 130 256 120 V186 H44 Z" fill="#6E7B66" />
+          <rect x="0" y="0" width="34" height="400" fill="#6E1E26" />
+          <rect x="266" y="0" width="34" height="400" fill="#6E1E26" />
+          <rect y="318" width="300" height="82" fill={`url(#${id('broc')})`} />
+          <rect y="314" width="300" height="6" fill="#C9A45C" />
+        </g>
+      )}
+      <ellipse cx="150" cy="390" rx="78" ry="7" fill="#000" opacity="0.13" />
+
+      {/* ——— Figure: faceless croquis, long dark hair (as on the house's models) ——— */}
+      {(g === 'kimonoLace') && (
+        <path d="M112 92 L150 60 L188 92 L176 118 L124 118 Z" fill={`url(#${id('lace')})`} stroke={c1} stroke-width="1" />
+      )}
+      <path d="M128 50 C126 24 140 18 150 18 C163 18 176 26 173 52 C175 80 182 100 188 116 L170 114 C166 98 163 86 161 76 L139 76 C137 86 134 98 130 114 L112 116 C118 100 125 80 128 50 Z" fill={hair} />
+      <rect x="144" y="56" width="12" height="30" fill={skin} />
+      <ellipse cx="150" cy="44" rx="13" ry="17" fill={skin} />
+      <path d="M137 40 C138 26 146 22 152 22 C160 22 165 30 164 38 C158 32 146 32 137 40 Z" fill={hair} />
+
+      {/* ——— Garments ——— */}
+      {g === 'wrap' && (
+        <g>
+          <path d="M116 82 C100 88 92 120 88 170 C86 200 84 222 82 238 L99 242 C102 218 106 188 110 160 C113 130 116 110 119 98 Z" fill={c0} />
+          <path d="M184 82 C200 88 208 120 212 170 C214 200 216 222 218 238 L201 242 C198 218 194 188 190 160 C187 130 184 110 181 98 Z" fill={c0} />
+          <path d="M81 236 L100 240 L99 250 L80 246 Z M219 236 L200 240 L201 250 L220 246 Z" fill={c1} />
+          <path d="M116 80 L184 80 C192 120 190 170 186 206 C200 260 214 316 228 342 L72 342 C86 316 100 260 114 206 C110 170 108 120 116 80 Z" fill={c0} />
+          <path d={`M72 340 L228 340 L246 384${waves(56, 246, 384, 10, 9)} Z`} fill={c0} />
+          <path d={`M72 340 L228 340 L232 348 L68 348 Z`} fill={c1} opacity="0.55" />
+          <path d="M128 80 L150 128 L172 80 Z" fill={skin} />
+          <path d="M128 80 L150 128 L172 80" fill="none" stroke={c1} stroke-width="2.5" />
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <><circle cx={129.5 + i * 2.7} cy={83 + i * 5.8} r="1.5" fill="#FFFDF6" /><circle cx={170.5 - i * 2.7} cy={83 + i * 5.8} r="1.5" fill="#FFFDF6" /></>)}
+          <path d="M150 128 C166 160 178 190 186 206" fill="none" stroke={c1} stroke-width="2" />
+          <path d="M184 204 C192 232 194 262 188 292 L195 292 C200 262 198 232 191 204 Z M188 206 C198 228 204 250 204 270 L210 268 C208 246 202 226 192 204 Z" fill={c1} />
+          <path d="M120 230 C114 280 104 320 96 342 M160 210 C162 260 166 310 168 342 M196 260 C206 300 214 326 220 342" fill="none" stroke={c1} stroke-width="1.3" opacity="0.6" />
+        </g>
+      )}
+      {(g === 'jellaba' || g === 'jellabaHood') && (
+        <g>
+          <path d="M112 82 C96 90 86 130 78 200 L72 252 L104 254 C106 210 108 150 112 120 Z" fill={c0} />
+          <path d="M188 82 C204 90 214 130 222 200 L228 252 L196 254 C194 210 192 150 188 120 Z" fill={c0} />
+          <path d="M112 80 L188 80 C196 160 204 300 210 386 L90 386 C96 300 104 160 112 80 Z" fill={c0} />
+          <path d="M150 120 C148 200 146 300 146 386 M124 140 C118 220 110 320 104 386 M176 140 C182 220 190 320 196 386" fill="none" stroke={c1} stroke-width="1.4" opacity="0.7" />
+          {g === 'jellaba' && (
+            <g>
+              <path d="M71 242 L104 244 L104 256 L70 254 Z M229 242 L196 244 L196 256 L230 254 Z" fill={c2} />
+              <path d="M140 80 L150 96 L160 80" fill={skin} stroke={c2} stroke-width="1.6" />
+              {dots(150, 102, 380, 8.5).map((d) => <circle cx={d.x} cy={d.y} r="2.1" fill={c2} />)}
+            </g>
+          )}
+          {g === 'jellabaHood' && (
+            <g>
+              <path fill-rule="evenodd" d="M118 90 C108 44 126 12 150 12 C174 12 192 44 182 90 C170 84 160 82 150 82 C140 82 130 84 118 90 Z M150 27 C141 27 136 34 136 44 C136 56 142 64 150 64 C158 64 164 56 164 44 C164 34 159 27 150 27 Z" fill={c0} />
+              <path d="M136 44 C136 34 141 27 150 27 C159 27 164 34 164 44" fill="none" stroke={c1} stroke-width="2" />
+              <path d="M150 82 L150 130" stroke={c2} stroke-width="3" />
+              <path d="M142 82 L150 130 L158 82" fill="none" stroke={c2} stroke-width="2" />
+              <path d="M150 130 L150 148" stroke={c2} stroke-width="1.5" />
+              <path d="M150 146 C146 152 145 160 150 166 C155 160 154 152 150 146 Z" fill={c2} />
+              <rect x="118" y="110" width="22" height="52" fill={`url(#${id('emb')})`} />
+              <rect x="160" y="110" width="22" height="52" fill={`url(#${id('emb')})`} />
+              <path d="M74 242 L104 244 M226 242 L196 244" stroke={c2} stroke-width="3" />
+            </g>
+          )}
+        </g>
+      )}
+      {(g === 'kimonoSatin' || g === 'kimonoPrint' || g === 'kimonoLace' || g === 'bomber') && (
+        <g>
+          {/* trousers + top underneath */}
+          <path d="M120 230 L180 230 L186 388 L156 388 L150 280 L144 388 L114 388 Z" fill={g === 'kimonoLace' ? '#151515' : g === 'kimonoPrint' ? '#D8C8AC' : '#F1EADF'} />
+          <path d="M124 84 L176 84 L180 234 L120 234 Z" fill={g === 'kimonoLace' ? '#151515' : '#FBF8F2'} />
+        </g>
+      )}
+      {(g === 'kimonoSatin' || g === 'kimonoPrint') && (
+        <g>
+          <path d="M112 82 C96 90 88 124 82 170 L78 230 L108 232 L112 150 Z" fill={g === 'kimonoPrint' ? `url(#${id('trop')})` : `url(#${id('sat')})`} />
+          <path d="M188 82 C204 90 212 124 218 170 L222 230 L192 232 L188 150 Z" fill={g === 'kimonoPrint' ? `url(#${id('trop')})` : `url(#${id('sat')})`} />
+          <path d={`M112 80 L144 80 L140 140 L138 ${g === 'kimonoPrint' ? 292 : 320} L98 ${g === 'kimonoPrint' ? 292 : 320} C102 240 106 160 112 80 Z`} fill={g === 'kimonoPrint' ? `url(#${id('trop')})` : `url(#${id('sat')})`} />
+          <path d={`M188 80 L156 80 L160 140 L162 ${g === 'kimonoPrint' ? 292 : 320} L202 ${g === 'kimonoPrint' ? 292 : 320} C198 240 194 160 188 80 Z`} fill={g === 'kimonoPrint' ? `url(#${id('trop')})` : `url(#${id('sat')})`} />
+          <path d={`M144 80 L140 140 L138 ${g === 'kimonoPrint' ? 292 : 320} M156 80 L160 140 L162 ${g === 'kimonoPrint' ? 292 : 320}`} fill="none" stroke={g === 'kimonoPrint' ? c2 : c1} stroke-width="5" />
+          <rect x="104" y="196" width="92" height="10" fill={g === 'kimonoPrint' ? c1 : c0} stroke={c1} stroke-width="1" />
+          <path d="M150 201 C144 220 142 240 140 262 L146 262 C148 240 150 222 154 204 Z M152 202 C160 222 164 242 166 258 L172 256 C168 238 162 218 156 200 Z" fill={g === 'kimonoPrint' ? c1 : c0} stroke={c1} stroke-width="0.8" />
+        </g>
+      )}
+      {g === 'kimonoLace' && (
+        <g>
+          <path d="M112 82 C96 90 88 120 84 160 L80 196 L110 198 L112 140 Z" fill={`url(#${id('lace')})`} />
+          <path d="M188 82 C204 90 212 120 216 160 L220 196 L190 198 L188 140 Z" fill={`url(#${id('lace')})`} />
+          <path d="M112 80 L142 80 L138 232 L104 232 C106 180 108 130 112 80 Z M188 80 L158 80 L162 232 L196 232 C194 180 192 130 188 80 Z" fill={`url(#${id('lace')})`} />
+          {[106, 115, 124, 133, 167, 176, 185, 194].map((x) => <circle cx={x} cy="233" r="4.6" fill={c0} stroke={c1} stroke-width="0.8" />)}
+          {[84, 92, 100, 108, 192, 200, 208, 216].map((x) => <circle cx={x} cy="198" r="4" fill={c0} stroke={c1} stroke-width="0.8" />)}
+        </g>
+      )}
+      {g === 'bomber' && (
+        <g>
+          <path d="M112 84 C98 92 90 126 86 170 L82 220 L108 222 L112 150 Z M188 84 C202 92 210 126 214 170 L218 220 L192 222 L188 150 Z" fill={`url(#${id('jac')})`} />
+          <path d="M81 218 L108 220 L108 232 L80 230 Z M219 218 L192 220 L192 232 L220 230 Z" fill={c1} />
+          <path d="M110 82 L190 82 C194 130 196 176 194 210 L106 210 C104 176 106 130 110 82 Z" fill={`url(#${id('jac')})`} />
+          <rect x="106" y="172" width="88" height="38" fill={`url(#${id('gold')})`} />
+          <rect x="106" y="208" width="88" height="14" fill={c1} />
+          <path d="M106 211 H194 M106 215 H194 M106 219 H194" stroke={c0} stroke-width="0.8" />
+          <path d="M150 84 L150 222" stroke="#B49A63" stroke-width="2" />
+          <path d="M134 82 C140 92 160 92 166 82" fill="none" stroke={c1} stroke-width="6" />
+        </g>
+      )}
+      {g === 'gandoura' && (
+        <g>
+          <path d="M126 78 C132 90 168 90 174 78 L190 96 L110 96 Z" fill={skin} />
+          <path d="M80 148 L94 156 L96 236 L84 236 Z M220 148 L206 156 L204 236 L216 236 Z" fill={skin} />
+          <path d="M104 96 L196 96 L226 146 L206 160 C210 240 214 320 218 386 L82 386 C86 320 90 240 94 160 L74 146 Z" fill={fill} />
+          <path d="M104 96 L196 96 L198 104 L102 104 Z" fill={piece.id === 'gandoura-fleurie' ? c1 : c1} />
+          <path d="M150 104 L150 140 M120 160 C114 240 106 320 100 386 M180 160 C186 240 194 320 200 386" fill="none" stroke={c1} stroke-width="1.2" opacity="0.5" />
+          <path d="M146 102 C142 116 140 128 138 142 M154 102 C158 116 160 128 162 142" fill="none" stroke={piece.id === 'gandoura-doree' ? '#B8924A' : c2} stroke-width="1.6" />
+          <path d="M138 140 C134 148 134 156 138 162 C142 156 142 148 138 140 Z M162 140 C158 148 158 156 162 162 C166 156 166 148 162 140 Z" fill={piece.id === 'gandoura-doree' ? '#B8924A' : c2} />
+        </g>
+      )}
+      <rect width="300" height="400" fill={`url(#${id('light')})`} opacity="0.25" />
     </g>
+    <path d={arch} fill="none" stroke="currentColor" stroke-opacity="0.18" stroke-width="1.5" vector-effect="non-scaling-stroke" />
   </svg>
-  {caption === 'tag' && <span class="plate__tag" aria-hidden="true">Photo à venir</span>}
-  {caption === 'full' && (
-    <figcaption class="plate__cap">
-      <span>Photographie à venir</span> Prise de vue proposée : {shot}
-    </figcaption>
-  )}
 </figure>
 
 <style>
-  .plate {
-    position: relative;
-    margin: 0;
-    background: var(--field);
-    overflow: hidden;
-    isolation: isolate;
-    aspect-ratio: var(--ar, 3 / 4);
-    width: 100%;
-  }
-  .plate::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--grain);
-    opacity: 0.16;
-    mix-blend-mode: multiply;
-    pointer-events: none;
-  }
-  .plate svg {
-    position: absolute;
-    inset: 6% 0 0;
-    width: 100%;
-    height: 94%;
-    display: block;
-  }
-  .plate--detail svg { inset: 0; height: 100%; }
-  .plate__num {
-    font-family: var(--serif);
-    font-size: 260px;
-    font-style: italic;
-    font-variation-settings: 'opsz' 96;
-    fill: currentColor;
-    color: var(--cloth);
-    opacity: 0.09;
-  }
-  .plate__figure { transition: transform 1.2s var(--ease); transform-origin: 50% 60%; }
-  .plate__tag {
-    position: absolute;
-    left: 0.75rem;
-    bottom: 0.7rem;
-    z-index: 1;
-    font: 500 0.625rem/1 var(--sans);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--paper);
-    background: var(--ink);
-    padding: 0.35rem 0.5rem;
-  }
-  .plate__cap {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-    right: auto;
-    max-width: min(88%, 26rem);
-    padding: 0.6rem 0.8rem;
-    text-align: left;
-    font: 400 0.6875rem/1.4 var(--sans);
-    color: var(--ink);
-    background: color-mix(in srgb, var(--paper) 88%, transparent);
-  }
-  .plate__cap span {
-    display: block;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-size: 0.625rem;
-    margin-bottom: 0.15rem;
-  }
+  .plate { margin: 0; position: relative; aspect-ratio: 3 / 4; color: var(--ink); }
+  .plate svg { display: block; width: 100%; height: 100%; }
 </style>

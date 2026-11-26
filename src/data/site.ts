@@ -9,8 +9,23 @@ export const site = {
   lang: 'fr',
   locale: 'fr_FR',
   description:
-    'Concept de site vitrine non officiel pour Kuskusi Kouture — gandouras, djellabas, kaftans et tenues. Démonstration proposée par Mansour Technologies.',
-  themeColor: '#17362a',
+    'Concept de site vitrine non officiel pour Kuskusi Kouture — jellabas, kimonos, gandouras et robes, « une touche marocaine dans chaque détail ». Démonstration proposée par Mansour Technologies.',
+  themeColor: '#f2ebe1',
+  /** Official Instagram bio (public, 2026-11-26). */
+  bio: 'At Kuskusi Kouture, we blend simplicity with sophistication while honoring our Moroccan heritage.',
+  /** Recurring caption line on the official posts (March–April 2026). */
+  signature: 'Une touche marocaine dans chaque détail, pour une allure qui traverse le temps.',
+  /** Posts are geotagged Casablanca. */
+  city: 'Casablanca',
+  /** Bio pin: "📍@houseofchiki.official (Marrakech)". */
+  stockist: { name: 'House of Chiki', handle: 'houseofchiki.official', city: 'Marrakech', url: 'https://www.instagram.com/houseofchiki.official/' },
+  /** Tagged by @mooonstudio_ (post DW_ZmP1jQhR) and listed by MWN Lifestyle, 16 April 2026. */
+  popup: {
+    label: 'Spring Pop-Up — Mooon Studio, Casablanca',
+    dates: '18 & 19 avril 2026',
+    post: 'https://www.instagram.com/p/DW_ZmP1jQhR/',
+    press: 'https://mwnlifestyle.com/2026/04/16/casablancas-spring-pop-up-spotlights-new-moroccan-labels/',
+  },
   /** Verified public channel (official Instagram account, confirmed). */
   instagram: {
     handle: 'kuskusikouture',
@@ -32,11 +47,11 @@ export const site = {
   },
 } as const;
 
-/** Section anchors on the home page, plus the lookbook page. */
+/** Section anchors on the single home page. */
 export const nav = [
   { label: 'La maison', href: '#maison' },
-  { label: 'Collections', href: '#collections' },
-  { label: 'Créations', href: '#creations' },
-  { label: 'Lookbook', href: 'lookbook/' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Le vestiaire', href: '#vestiaire' },
+  { label: 'Le détail', href: '#detail' },
+  { label: 'Sur Instagram', href: '#instagram' },
+  { label: 'Écrire', href: '#contact' },
 ] as const;
