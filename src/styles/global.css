@@ -35,7 +35,8 @@
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.45s; animation-timing-function: var(--ease); }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 1rem); }
+@media (max-width: 860px) { html { scroll-padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); } }
 body {
   margin: 0;
   background: var(--paper);
