@@ -3,6 +3,8 @@ import '@fontsource-variable/bodoni-moda/opsz.css';
 import '@fontsource-variable/bodoni-moda/opsz-italic.css';
 import '@fontsource-variable/hanken-grotesk/index.css';
 import '../styles/global.css';
+import bodoniUrl from '@fontsource-variable/bodoni-moda/files/bodoni-moda-latin-opsz-normal.woff2?url';
+import bodoniItUrl from '@fontsource-variable/bodoni-moda/files/bodoni-moda-latin-opsz-italic.woff2?url';
 import { site, nav } from '../data/site';
 import { url } from '../lib/url';
 
@@ -25,6 +27,8 @@ const href = (h: string) => (h.startsWith('#') ? `${url()}${h}` : url(h));
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
+    <link rel="preload" href={bodoniUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodoniItUrl} as="font" type="font/woff2" crossorigin />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content={site.themeColor} />
