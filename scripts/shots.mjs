@@ -28,6 +28,7 @@ const at = async (p, sel, file) => {
 for (const [name, w, h, m] of [['desktop', 1440, 900, false], ['mobile', 375, 812, true]]) {
   const p = await ctx(w, h, m);
   await p.goto(base);
+  await p.addStyleTag({ content: 'html{scroll-behavior:auto!important}' });
   await settle(p);
   await p.screenshot({ path: `${out}/${name}-home.png` });
   await p.screenshot({ path: `${out}/${name}-home-full.png`, fullPage: true });

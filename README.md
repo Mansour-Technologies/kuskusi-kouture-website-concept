@@ -39,7 +39,7 @@ The site is in French, designed mobile-first, and has no shop, bag, prices, acco
 
 ## Photography & embeds policy
 - **No photograph of the house is committed, copied or rehosted.** The real photographs appear only through Instagram's official embed iframe (`https://www.instagram.com/p/<code>/embed/`), created only after a user click.
-- The arch drawings (`src/components/Plate.astro`) are original SVG illustrations. Each one's alt text states which official post it echoes. The data, with the verbatim captions and shortcodes, is in `src/data/collections.ts`.
+- The arch drawings (`src/components/Plate.astro`) are original fashion croquis: an elongated figure in a fine navy ink line, the garment in a watercolour wash of its real colour (shared SVG filters `#kw` and `#kb` in the layout), and the signature detail marked precisely. Each one's alt text states which official post it echoes. The data, with the verbatim captions and shortcodes, is in `src/data/collections.ts`.
 - The header and footer "KK" lockup is a typographic *evocation* of the house's monogram, set in Bodoni Moda. It is to be replaced by the official vector logo.
 
 ## Assets to replace on approval

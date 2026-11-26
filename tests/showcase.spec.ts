@@ -99,7 +99,7 @@ test('vestiaire: 12 real pieces; piece dialog opens, next/prev + arrows, Escape 
 
 test('hero arch is a button that opens the matching piece', async ({ page }) => {
   await page.goto('');
-  const arch = page.locator('.hero .arch[data-fiche="robe-safran"]');
+  const arch = page.locator('.hero .arch__btn[data-fiche="robe-safran"]');
   await expect(arch).toHaveAttribute('aria-label', /Robe longue portefeuille — safran/);
   await arch.click();
   await expect(page.locator('#lightbox [data-lb-name]')).toHaveText('Robe longue portefeuille — safran');
