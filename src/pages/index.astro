@@ -122,7 +122,7 @@ const wa = site.whatsapp ? `https://wa.me/${site.whatsapp}` : null;
       <ol class="de__list">
         {details.map((d, i) => (
           <li class="rv">
-            <svg class="de__ico" viewBox="0 0 80 80" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4">
+            <svg class="de__ico" viewBox="0 0 80 80" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="0.9">
               {d.draw === 'hood' && <path d="M14 66 C14 34 26 12 40 8 C54 12 66 34 66 66 M24 66 C26 44 32 30 40 26 C48 30 54 44 56 66" />}
               {d.draw === 'buttons' && <><path d="M30 6 V74 M50 6 V74" />{[12, 22, 32, 42, 52, 62].map((y) => <circle cx="40" cy={y} r="3" fill="currentColor" />)}</>}
               {d.draw === 'pearls' && <><path d="M16 10 L40 58 L64 10" />{[0, 1, 2, 3, 4, 5].map((k) => <><circle cx={19 + k * 3.8} cy={17 + k * 7.6} r="2" /><circle cx={61 - k * 3.8} cy={17 + k * 7.6} r="2" /></>)}</>}
@@ -299,7 +299,7 @@ const wa = site.whatsapp ? `https://wa.me/${site.whatsapp}` : null;
   .de__list li { position: relative; padding: 2rem 2rem 2rem 0; border-bottom: 1px solid rgb(251 248 243 / 0.22); display: grid; grid-template-columns: 4.5rem 1fr; column-gap: 1.25rem; align-items: start; }
   .de__list li:not(:nth-child(3n)) { border-right: 1px solid rgb(251 248 243 / 0.22); }
   .de__list li:not(:nth-child(3n + 1)) { padding-left: 2rem; }
-  .de__ico { grid-row: span 3; width: 4.5rem; height: 4.5rem; color: var(--safran); }
+  .de__ico { grid-row: span 3; width: 4.5rem; height: 4.5rem; color: #efd27a; }
   .de__n { color: #e5c9cc; }
   .de__list h3 { font-size: clamp(1.6rem, 2.4vw, 2.2rem); margin: 0.4rem 0 0.6rem; }
   .de__from { margin: 0; color: #ecd9db; }
