@@ -75,7 +75,8 @@ function initLightbox() {
     const d = data[i];
     stage.replaceChildren(igFrame(d.embed, `Publication Instagram officielle : ${d.name}`));
     embedBtn.hidden = true;
-    post.focus();
+    post.focus({ preventScroll: true });
+    stage.scrollIntoView({ block: 'start' });
   });
   $$<HTMLElement>('[data-fiche]').forEach((b) =>
     b.addEventListener('click', () => {
