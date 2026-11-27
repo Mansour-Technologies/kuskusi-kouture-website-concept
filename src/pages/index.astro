@@ -57,14 +57,16 @@ const dm = site.instagram.dm;
           <p class="cr__lede">Les pièces telles que la maison les a publiées, avec ses propres mots. Chaque image est l’intégration officielle d’Instagram : rien n’est recadré, rien n’est hébergé ici.</p>
         </header>
         <article class="pc pc--robe" aria-labelledby="t-robe">
-          <div class="cap">
+          <div class="cap cap--top">
             <p class="cap__n">01</p>
             <h3 id="t-robe" class="cap__t">{posts.robe.title}</h3>
             <p class="cap__d"><time datetime={posts.robe.iso}>{posts.robe.date}</time> · Casablanca</p>
+          </div>
+          <Embed post={posts.robe} />
+          <div class="cap cap--after">
             <blockquote class="cap__q cap__q--big" lang="fr"><p>{q(posts.robe)}</p></blockquote>
             <p class="cap__l">{posts.robe.look}</p>
           </div>
-          <Embed post={posts.robe} />
         </article>
       </div>
 
@@ -176,7 +178,7 @@ const dm = site.instagram.dm;
     <div class="wrap">
       <header class="lb__head">
         <p class="kicker">03 — Lookbook 2024</p>
-        <h2 id="lb-t">Ramadan 2024, <em>au salon</em></h2>
+        <h2 id="lb-t">Ramadan <span class="num">2024</span>, <em>au salon</em></h2>
         <p class="lb__lede">Avant les légendes en français, la maison écrivait en anglais et donnait des noms à ses pièces : Thairy, Tanyla, Nelya, Bad3ia Tanila. Banquettes de brocart, plafond de cèdre, tableau au cadre doré ; les commandes se prennent en message privé.</p>
       </header>
       <div class="lb__row">
@@ -273,7 +275,7 @@ const dm = site.instagram.dm;
   :global(.hero__fig) { grid-area: 1 / 1; margin: 0; height: min(88%, 46rem); width: auto; aspect-ratio: 3 / 4; z-index: 1; }
   :global(.hero__fig--a) { animation: figIn 1.4s var(--ease) 0.15s both; }
   :global(.hero__fig--b) { height: min(64%, 34rem); transform: translateX(62%); align-self: end; margin-bottom: 3%; opacity: 0.96; animation: figInB 1.6s var(--ease) 0.4s both; }
-  @keyframes kkIn { from { letter-spacing: 0.12em; opacity: 0; } }
+  @keyframes kkIn { from { transform: scale(1.05); opacity: 0; } }
   @keyframes figIn { from { opacity: 0; transform: translateY(18px); } }
   @keyframes figInB { from { opacity: 0; transform: translate(62%, 18px); } }
   .hero__txt { grid-column: 1; grid-row: 1; align-self: center; padding-block: 3rem 5rem; position: relative; z-index: 2; }
@@ -316,7 +318,7 @@ const dm = site.instagram.dm;
   .cap__l { margin: 0.9rem 0 0; font-size: var(--fs-small); opacity: 0.85; }
 
   /* ——— 01 CRÉATIONS ——— */
-  .cr { background: var(--chaux); padding-block: clamp(4rem, 8vw, 8rem) clamp(4rem, 8vw, 7rem); }
+  .cr { background: var(--chaux); padding-block: clamp(3rem, 8vw, 8rem) clamp(4rem, 8vw, 7rem); }
   .cr__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.2vw, 2rem); row-gap: clamp(4rem, 9vw, 9rem); max-width: 1440px; }
   .cr__open { grid-column: 1 / -1; }
   .cr__head h2 { font-size: var(--fs-1); margin-top: 1.2rem; }
@@ -326,8 +328,9 @@ const dm = site.instagram.dm;
     .cr__open { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: inherit; }
     .cr__head { grid-column: 1 / 6; grid-row: 1; }
     .pc--robe { display: contents; }
-    .pc--robe .cap { grid-column: 1 / 6; grid-row: 2; align-self: end; max-width: 27rem; padding-top: 3rem; }
-    .pc--robe :global(.ig) { grid-column: 7 / 13; grid-row: 1 / span 2; justify-self: end; }
+    .pc--robe .cap--top { grid-column: 1 / 6; grid-row: 2; align-self: end; padding-top: 3rem; margin: 0; }
+    .pc--robe .cap--after { grid-column: 1 / 6; grid-row: 3; max-width: 27rem; }
+    .pc--robe :global(.ig) { grid-column: 7 / 13; grid-row: 1 / span 3; justify-self: end; }
     .cr__head { align-self: start; }
   }
   .pc-pair { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: inherit; position: relative; }
@@ -343,7 +346,7 @@ const dm = site.instagram.dm;
   .cr__more a { display: inline-flex; min-height: 44px; align-items: center; }
   @media (max-width: 1000px) {
     .cr__grid { row-gap: 4.5rem; }
-    .cr__open { display: grid; gap: 3.5rem; }
+    .cr__open { display: grid; gap: 2.5rem; }
     .pc, .pc--doree, .pc--dentelle { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr); }
     .pc--dentelle .cap { order: -1; padding-top: 0; }
     .pc--doree .cap { order: -1; }
@@ -381,6 +384,7 @@ const dm = site.instagram.dm;
   .lb .wrap { max-width: 1440px; }
   .lb__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.2vw, 2rem); align-items: end; margin-bottom: clamp(3rem, 6vw, 5.5rem); }
   .lb__head .kicker { grid-column: 1 / -1; }
+  .lb h2 .num { font-variation-settings: 'opsz' 18; letter-spacing: 0; }
   .lb h2 { grid-column: 1 / 7; font-size: var(--fs-1); margin-top: 1.2rem; }
   .lb__lede { grid-column: 8 / 13; margin: 0; color: #ead6d3; }
   .lb__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.25rem, 2.6vw, 2.5rem); align-items: start; }
