@@ -1,13 +1,14 @@
 import { test, expect, type Page } from '@playwright/test';
-import { pages, removed, NOTICE, VERIFIED_HOSTS, SECTIONS } from './pages';
+import { pages, removed, NOTICE, VERIFIED_HOSTS, SECTIONS, POSTS, THIRD_PARTY } from './pages';
 
 const isMobile = (p: Page) => (p.viewportSize()?.width ?? 1440) <= 1024;
 
 for (const path of pages) {
-  test(`/${path} loads: notice, noindex, attribution, no console errors, no 404 assets`, async ({ page, baseURL }) => {
+  test(`/${path} loads: notice, noindex, attribution, no console errors from our code, no 404 assets`, async ({ page, baseURL }) => {
     const errors: string[] = [];
     const bad: string[] = [];
-    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+    // Instagram's embed documents log their own errors (permissions policy etc.): recorded separately, not ours.
+    page.on('console', (m) => m.type() === 'error' && !THIRD_PARTY.test(`${m.location()?.url ?? ''} ${m.text()}`) && errors.push(`${m.text()} @ ${m.location()?.url}`));
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('response', (r) => { if (r.status() >= 400 && r.url().startsWith(new URL(baseURL!).origin)) bad.push(`${r.status()} ${r.url()}`); });
     const res = await page.goto(path);
@@ -72,67 +73,44 @@ test('desktop nav is keyboard reachable after the skip link', async ({ page }) =
   await expect(page.locator('.hdr__nav a').first()).toBeFocused();
 });
 
-test('vestiaire: 12 real pieces; piece dialog opens, next/prev + arrows, Escape closes, focus returns', async ({ page }) => {
+test('hero is drawn, not embedded: KK lockup, the house caption, CTA to the creations', async ({ page }) => {
   await page.goto('');
-  const items = page.locator('.card [data-fiche]');
-  expect(await items.count()).toBe(12);
-  const first = items.nth(0);
-  await first.scrollIntoViewIfNeeded();
-  await first.click();
-  const lb = page.locator('#lightbox');
-  await expect(lb).toBeVisible();
-  await expect(lb.locator('[data-lb-name]')).toHaveText('Robe longue portefeuille — safran');
-  await expect(lb.locator('[data-lb-count]')).toHaveText('1 / 12');
-  await expect(lb.locator('[data-lb-caption]')).toContainText('bas à volants');
-  await expect(lb.locator('[data-lb-post]')).toHaveAttribute('href', 'https://www.instagram.com/p/DW9OnKljNCm/');
-  await expect(lb.locator('[data-lb-stage] .plate')).toHaveCount(1);
-  await lb.locator('[data-lb-next]').click();
-  await expect(lb.locator('[data-lb-count]')).toHaveText('2 / 12');
-  await page.keyboard.press('ArrowLeft');
-  await page.keyboard.press('ArrowLeft');
-  await expect(lb.locator('[data-lb-count]')).toHaveText('12 / 12');
-  await expect(lb.locator('a.lb__cta')).toHaveAttribute('href', 'https://ig.me/m/kuskusikouture');
-  await page.keyboard.press('Escape');
-  await expect(lb).toBeHidden();
-  await expect(first).toBeFocused();
+  const hero = page.locator('[data-hero]');
+  await expect(hero.locator('h1')).toHaveText(/Une touche marocaine\s*dans chaque détail/);
+  await expect(hero.locator('iframe')).toHaveCount(0);
+  await expect(hero.locator('.plate svg[role="img"]').first()).toHaveAttribute('aria-label', /Croquis original/);
+  const cta = hero.getByRole('link', { name: 'Découvrir les créations' });
+  await cta.click();
+  await expect(page).toHaveURL(/#creations$/);
 });
 
-test('hero arch is a button that opens the matching piece', async ({ page }) => {
+test('12 official Instagram embeds: space reserved, lazy-loaded on scroll, unmodified official URLs', async ({ page }) => {
   await page.goto('');
-  const arch = page.locator('.hero .arch__btn[data-fiche="robe-safran"]');
-  await expect(arch).toHaveAttribute('aria-label', /Robe longue portefeuille — safran/);
-  await arch.click();
-  await expect(page.locator('#lightbox [data-lb-name]')).toHaveText('Robe longue portefeuille — safran');
-});
-
-test('official Instagram embeds load only on click; drawings stand in before (no request to Instagram)', async ({ page }) => {
-  const igRequests: string[] = [];
-  page.on('request', (r) => { if (/instagram\.com|cdninstagram|facebook/.test(r.url())) igRequests.push(r.url()); });
-  await page.goto('');
-  await page.waitForLoadState('networkidle');
-  await page.locator('#instagram').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(500);
-  expect(await page.locator('iframe').count()).toBe(0);
-  expect(igRequests, igRequests.join('\n')).toEqual([]);
-  await expect(page.locator('#instagram [data-embed-box] .plate')).toHaveCount(3);
-  // inline facade
-  const facade = page.locator('#instagram [data-embed]').first();
-  await expect(facade).toHaveAttribute('data-embed', /^https:\/\/www\.instagram\.com\/p\/[\w-]+\/embed\/$/);
-  await facade.click();
-  const frame = page.locator('#instagram [data-embed-box] iframe').first();
-  await expect(frame).toHaveAttribute('src', 'https://www.instagram.com/p/DWytRK9DEOI/embed/');
-  await expect(frame).toHaveAttribute('title', /Publication Instagram officielle/);
-  await expect(page.locator('#instagram [data-embed-box].is-loaded .plate')).toBeHidden();
-  // piece dialog
-  await page.locator('.card [data-fiche="jellaba-citron"]').click();
-  const lb = page.locator('#lightbox');
-  await expect(lb.locator('iframe')).toHaveCount(0);
-  await lb.locator('[data-lb-embed]').click();
-  await expect(lb.locator('[data-lb-stage] iframe')).toHaveAttribute('src', 'https://www.instagram.com/p/DWzf6NTDaio/embed/');
-  await expect(lb.locator('[data-lb-embed]')).toBeHidden();
-  await lb.locator('[data-lb-next]').click();
-  await expect(lb.locator('[data-lb-stage] .plate')).toHaveCount(1);
-  await expect(lb.locator('[data-lb-embed]')).toBeVisible();
+  const boxes = page.locator('[data-ig-src]');
+  await expect(boxes).toHaveCount(12);
+  expect(await boxes.evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.igSrc))).toEqual(POSTS.map((c) => `https://www.instagram.com/p/${c}/embed/`));
+  // Space is reserved before any iframe exists: height = ratio × width + 208 px (measured Instagram chrome).
+  const dims = await boxes.evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { w: r.width, h: r.height, k: parseFloat(getComputedStyle(e.parentElement!).getPropertyValue('--r')) }; }));
+  for (const d of dims) expect(Math.abs(d.h - (d.k * d.w + 208))).toBeLessThan(2);
+  await page.waitForLoadState('load');
+  await page.waitForTimeout(400);
+  // Far-below embeds are not loaded at the top of the page.
+  await expect(page.locator('#maison iframe, #lookbook iframe')).toHaveCount(0);
+  // Scrolling brings them in, no click needed.
+  for (const id of ['creations', 'details', 'lookbook', 'maison']) {
+    await page.locator(`#${id}`).evaluate((el) => el.scrollIntoView({ block: 'start', behavior: 'instant' }));
+    await page.mouse.wheel(0, 1600);
+    await page.waitForTimeout(250);
+    await page.mouse.wheel(0, 1600);
+    await page.waitForTimeout(250);
+  }
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(page.locator('[data-ig-src] iframe')).toHaveCount(12, { timeout: 15000 });
+  const srcs = await page.locator('[data-ig-src] iframe').evaluateAll((fs) => fs.map((f) => (f as HTMLIFrameElement).src));
+  for (const s of srcs) expect(s).toMatch(/^https:\/\/www\.instagram\.com\/p\/[\w-]+\/embed\/$/);
+  await expect(page.locator('[data-ig-src] iframe').first()).toHaveAttribute('title', /Publication Instagram officielle de @kuskusikouture/);
+  // A plain link to every post stays available (no-JS fallback / failure path).
+  await expect(page.locator('a.ig__wait[href^="https://www.instagram.com/p/"]')).toHaveCount(12);
 });
 
 test('every external contact/social link is https, verified host, new tab with noopener', async ({ page }) => {
@@ -140,6 +118,7 @@ test('every external contact/social link is https, verified host, new tab with n
     await page.goto(p);
     const links = await page.$$eval('a[href^="http"]', (as) => as.map((a) => ({ href: (a as HTMLAnchorElement).href, target: a.getAttribute('target'), rel: a.getAttribute('rel') ?? '' })));
     const ext = links.filter((l) => !l.href.includes('mansour-technologies.github.io') && !l.href.startsWith('http://localhost'));
+    expect(ext.filter((l) => /cdninstagram|scontent|fbcdn/.test(l.href))).toEqual([]);
     expect(ext.length).toBeGreaterThan(3);
     for (const l of ext) {
       const u = new URL(l.href);
@@ -153,6 +132,8 @@ test('every external contact/social link is https, verified host, new tab with n
   }
   await page.goto('');
   await expect(page.locator('#contact a.ct__dm')).toHaveAttribute('href', 'https://ig.me/m/kuskusikouture');
+  await expect(page.locator('#contact a[href="https://www.facebook.com/KuskusiZhorKouture/"]')).toHaveCount(1);
+  await expect(page.locator('.hdr__dm, .hero a[href="https://ig.me/m/kuskusikouture"]').first()).toBeAttached();
   await expect(page.locator('a[href*="wa.me"]')).toHaveCount(0); // WhatsApp hidden until approved
 });
 
