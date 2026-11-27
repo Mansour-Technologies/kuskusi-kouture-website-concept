@@ -1,6 +1,6 @@
 /**
  * The house's real pieces, as published on the official Instagram account @kuskusikouture
- * (public posts, March–April 2026, geotagged Casablanca). Captions are quoted verbatim from
+ * (public posts, 29 March – 10 April 2026 — dates re-read from the post pages on 2026-11-27, geotagged Casablanca). Captions are quoted verbatim from
  * the posts. The visuals on this site are ORIGINAL art-directed drawings that echo each piece
  * (colour, silhouette, details); the real photograph is only ever shown through Instagram's
  * official embed, loaded on click. High-res originals: see README "Assets to replace on approval".
@@ -30,7 +30,7 @@ export interface Piece {
 
 export const pieces: Piece[] = [
   {
-    id: 'robe-safran', code: 'DW9OnKljNCm', date: '9 avril 2026', chapter: 'robes',
+    id: 'robe-safran', code: 'DW9OnKljNCm', date: '10 avril 2026', chapter: 'robes',
     name: 'Robe longue portefeuille — safran',
     caption: 'Une coupe fluide, un décolleté aux finitions perlées et un bas à volants pour un tombé impeccable. Une pièce essentielle à avoir dans son dressing.',
     echo: 'Robe longue jaune safran, col V croisé, manches longues bouffantes, lien à la taille et bas à volants, dans la cour d’un riad aux arches blanches et au sol en zellige.',
@@ -38,7 +38,7 @@ export const pieces: Piece[] = [
     swatches: [{ name: 'Safran', hex: '#E4B007' }, { name: 'Chaux', hex: '#F2EBE1' }, { name: 'Zellige', hex: '#2F6B5E' }],
   },
   {
-    id: 'robe-rose', code: 'DW55YkiDbrK', date: '10 avril 2026', chapter: 'robes',
+    id: 'robe-rose', code: 'DW55YkiDbrK', date: '9 avril 2026', chapter: 'robes',
     name: 'Robe longue portefeuille — rose dragée',
     caption: 'Une coupe fluide, un décolleté aux finitions perlées et un bas à volants pour un tombé impeccable. Une pièce essentielle à avoir dans son dressing.',
     echo: 'La même robe portefeuille en rose poudré, lumière de fenêtre dans une pièce blanche.',
@@ -46,7 +46,7 @@ export const pieces: Piece[] = [
     swatches: [{ name: 'Rose dragée', hex: '#EDC6C6' }, { name: 'Blanc', hex: '#FBF8F3' }],
   },
   {
-    id: 'jellaba-citron', code: 'DWzf6NTDaio', date: '5 avril 2026', chapter: 'jellabas',
+    id: 'jellaba-citron', code: 'DWzf6NTDaio', date: '6 avril 2026', chapter: 'jellabas',
     name: 'Jellaba deux pièces — vert citron',
     caption: 'Jellaba deux pièces très légère, parfaite pour le printemps et l’été.',
     echo: 'Jellaba à capuche vert chartreuse, panneaux brodés bleu nuit sur le buste, encolure fendue gansée et pompon.',
@@ -54,7 +54,7 @@ export const pieces: Piece[] = [
     swatches: [{ name: 'Vert citron', hex: '#A9C43A' }, { name: 'Bleu nuit', hex: '#1F2A55' }],
   },
   {
-    id: 'jellaba-ivoire', code: 'DWytRK9DEOI', date: '5 avril 2026', chapter: 'jellabas',
+    id: 'jellaba-ivoire', code: 'DWytRK9DEOI', date: '6 avril 2026', chapter: 'jellabas',
     name: 'Jellaba sans capuche — ivoire & noir',
     caption: 'Jellaba sans capuche, entre simplicité et modernité.',
     echo: 'Jellaba ivoire sans capuche, rangée de petits boutons noirs du col à l’ourlet, poignets noirs.',
@@ -62,7 +62,7 @@ export const pieces: Piece[] = [
     swatches: [{ name: 'Ivoire', hex: '#F3EEE4' }, { name: 'Noir', hex: '#151515' }],
   },
   {
-    id: 'kimono-satin', code: 'DWwpkzzjRtA', date: '2 avril 2026', chapter: 'kimonos',
+    id: 'kimono-satin', code: 'DWwpkzzjRtA', date: '5 avril 2026', chapter: 'kimonos',
     name: 'Kimono en satin de soie, ceinturé',
     caption: 'Kimono en satin de soie avec ceinture avec une touche marocaine dans chaque détail, pour une allure qui traverse le temps.',
     echo: 'Kimono long en satin champagne, col châle, ceinture nouée, porté sur un pantalon clair.',
@@ -70,7 +70,7 @@ export const pieces: Piece[] = [
     swatches: [{ name: 'Champagne', hex: '#E9DECB' }, { name: 'Sable', hex: '#CDBB9C' }],
   },
   {
-    id: 'bomber-menthe', code: 'DWwHpdsDC0i', date: '1 avril 2026', chapter: 'kimonos',
+    id: 'bomber-menthe', code: 'DWwHpdsDC0i', date: '5 avril 2026', chapter: 'kimonos',
     name: 'Veste bomber — jacquard menthe',
     caption: 'Veste bomber toujours avec notre touche marocaine.',
     echo: 'Bomber en jacquard vert menthe, bande basse brodée or, bords côtes, porté sur un pantalon écru.',
@@ -110,7 +110,7 @@ export const pieces: Piece[] = [
     swatches: [{ name: 'Vert d’eau', hex: '#BFD0BE' }, { name: 'Blanc', hex: '#EEF1E8' }],
   },
   {
-    id: 'gandoura-fleurie', code: 'DWox_IvjPDW', date: '6 avril 2026', chapter: 'gandouras',
+    id: 'gandoura-fleurie', code: 'DWox_IvjPDW', date: '2 avril 2026', chapter: 'gandouras',
     name: 'Gandoura fleurie, encolure brodée rose',
     caption: 'Une touche marocaine dans chaque détail, pour une allure qui traverse le temps.',
     echo: 'Gandoura blanche à fleurs roses et feuillage vert, encolure brodée rose, devant un mur ocre et un drapé de velours.',
@@ -118,7 +118,7 @@ export const pieces: Piece[] = [
     swatches: [{ name: 'Fleur', hex: '#E58FA8' }, { name: 'Feuille', hex: '#7FA77A' }],
   },
   {
-    id: 'gandoura-satin', code: 'DWlkfCYDJHa', date: '6 avril 2026', chapter: 'gandouras',
+    id: 'gandoura-satin', code: 'DWlkfCYDJHa', date: '1 avril 2026', chapter: 'gandouras',
     name: 'Gandoura en satin, salon marocain',
     caption: 'Une touche marocaine dans chaque détail, pour une allure qui traverse le temps.',
     echo: 'Gandoura en satin rosé champagne, portée allongée sur une banquette de salon marocain, rideaux de velours.',

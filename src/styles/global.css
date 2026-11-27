@@ -1,17 +1,19 @@
-/* Kuskusi Kouture — concept design system, rebuilt from the house's real universe (Instagram, March–April 2026):
-   navy hairline "KK" monogram on white · riad limewash, arches & zellige · saturated single-colour pieces
-   (safran, vert citron, rose dragée) against ivory, champagne satin and black buttons · velvet curtains. */
+/* Kuskusi Kouture — concept design system, taken from the house's own material (Instagram 2024–2026):
+   the navy hairline "KK" monogram on white · saffron, lime, emerald, kaki and blush pieces · limewash-white rooms,
+   burgundy velvet curtains and brocade banquettes of the riad shoots. The colours of the clothes lead; the page is white. */
 :root {
-  --chaux: #f2ebe1;      /* limewash walls of the riad settings */
-  --chaux-2: #e8ddcd;
-  --blanc: #fbf8f3;
+  --chaux: #fbf9f5;      /* the limewash-white rooms of the 2026 shoots */
+  --chaux-2: #efe9df;
+  --blanc: #fffdf9;
+  --emeraude: #1b3a2d;   /* gandoura Tanyla, "only Emerald green" (March 2024) */
+  --emeraude-2: #24503d;
   --encre: #1d2447;      /* the monogram's navy ink */
   --encre-2: #474c66;    /* 7.2:1 on chaux */
   --velours: #561820;    /* burgundy velvet curtains */
   --velours-2: #6e1e26;
   --safran: #e4b007;
   --citron: #a9c43a;
-  --rose: #edc6c6;
+  --rose: #f1d3d1;      /* robe longue, rose (April 2026) */
   --zellige: #2f6b5e;
   --or: #b8924a;
   --terre: #b5673f;
@@ -105,6 +107,3 @@ p { margin: 0 0 1em; }
   .rv { opacity: 1; transform: none; }
 }
 
-/* Instagram official embed (portrait posts): height = 4:3 image + header/footer chrome */
-.igf { container-type: inline-size; width: min(100%, 440px); margin-inline: auto; }
-.igf iframe { display: block; width: 100%; height: calc(133.4cqw + 224px); border: 0; background: #fff; }

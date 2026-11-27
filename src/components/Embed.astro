@@ -1,0 +1,43 @@
+---
+/**
+ * Instagram's official embed of one public post, shown unmodified (no crop, no overlay, Instagram's
+ * own header, footer and links intact). The iframe is created by src/lib/chrome.ts when the box
+ * nears the viewport; until then the box reserves the embed's exact height (ratio × width + 208 px)
+ * and offers a plain link to the post (also the no-JS fallback).
+ */
+import { igEmbed, igPost, type Post } from '../data/posts';
+interface Props { post: Post; class?: string }
+const { post, class: cls } = Astro.props;
+const who = `@${post.author}`;
+---
+<div class:list={['ig', cls]} style={`--r:${post.ratio.toFixed(4)}`}>
+  <div
+    class="ig__box"
+    data-ig-src={igEmbed(post.code)}
+    data-ig-title={`Publication Instagram officielle de ${who} : ${post.title}, ${post.date}`}
+  >
+    <a class="ig__wait" href={igPost(post.code)} target="_blank" rel="noopener noreferrer">
+      <span class="ig__who">{who}</span>
+      <span>Publication officielle · {post.date}</span>
+      <span class="ig__go">Voir sur Instagram<span class="sr-only"> (nouvel onglet)</span></span>
+    </a>
+  </div>
+  <p class="ig__src">
+    Intégration officielle Instagram · <a href={igPost(post.code)} target="_blank" rel="noopener noreferrer">{who}<span class="sr-only"> : ouvrir la publication (nouvel onglet)</span> ↗</a>
+  </p>
+</div>
+
+<style is:global>
+  .ig { width: 100%; max-width: 540px; container-type: inline-size; }
+  .ig__box { position: relative; width: 100%; height: calc(var(--r) * 100cqw + 208px); background: #fff; outline: 1px solid rgb(0 0 0 / 0.08); }
+  .ig__box iframe { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border: 0; background: #fff; opacity: 0; transition: opacity 0.9s var(--ease); }
+  .ig__box.is-in iframe { opacity: 1; }
+  .ig__wait { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 0.4rem; padding: 1rem; text-align: center; color: #5b5f73; font-size: var(--fs-small); text-decoration: none;
+    background: linear-gradient(110deg, #fff 30%, #f4f2ef 50%, #fff 70%) 0 0 / 300% 100%; animation: igWait 2.4s linear infinite; }
+  .ig__who { font-weight: 600; color: #262626; }
+  .ig__go { text-decoration: underline; text-underline-offset: 0.2em; }
+  .ig__box.is-in .ig__wait { visibility: hidden; animation: none; }
+  @keyframes igWait { to { background-position: -300% 0; } }
+  .ig__src { margin: 0.55rem 0 0; font-size: var(--fs-micro); letter-spacing: 0.04em; opacity: 0.85; }
+  .ig__src a { display: inline-block; padding-block: 0.7rem; margin-block: -0.7rem; }
+</style>

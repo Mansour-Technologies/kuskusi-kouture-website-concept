@@ -6,8 +6,8 @@
  * through Instagram's official embed. Shared filters (#kw wash, #kb brush) live once in Base.astro.
  */
 import type { Piece } from '../data/collections';
-interface Props { piece: Piece; uid: string; class?: string }
-const { piece, uid, class: cls } = Astro.props;
+interface Props { piece: Piece; uid: string; class?: string; /** figure only: no paper ground, wash or arch (for colour fields) */ bare?: boolean; label?: string }
+const { piece, uid, class: cls, bare = false, label } = Astro.props;
 const [c0, c1, c2] = piece.colors;
 const g = piece.garment;
 const INK = '#1D2447';
@@ -32,13 +32,13 @@ const sleeveR = 'M182 82 C196 94 202 140 206 186 L210 232 L182 236 C180 196 178 
 const gandoura = 'M108 96 L192 96 L224 150 L204 160 C208 240 212 318 216 386 Q150 394 84 386 C88 318 92 240 96 160 L76 150 Z';
 ---
 <figure class:list={['plate', cls]} data-piece={piece.id}>
-  <svg viewBox="0 0 300 400" role="img" aria-label={`Croquis original : ${piece.echo}`}>
+  <svg viewBox="0 0 300 400" role="img" aria-label={label ?? `Croquis original : ${piece.echo}`}>
     <clipPath id={id('a')}><path d={arch} /></clipPath>
-    <g clip-path={`url(#${id('a')})`}>
-      <rect width="300" height="400" fill="#F8F3EA" />
+    <g clip-path={bare ? undefined : `url(#${id('a')})`}>
+      {!bare && <rect width="300" height="400" fill="#F8F3EA" />}
       {/* a single limewash brush stroke, tinted after the post's setting */}
-      <path d="M40 330 C70 250 60 150 120 96 C170 52 238 70 262 140 C282 200 250 300 230 360 C190 380 100 380 40 330 Z" fill={stroke} opacity="0.22" filter="url(#kb)" />
-      <path d="M22 400 V160 C22 92 76 44 150 30 C224 44 278 92 278 160 V400" fill="none" stroke={INK} stroke-opacity="0.12" stroke-width="0.8" />
+      {!bare && <path d="M40 330 C70 250 60 150 120 96 C170 52 238 70 262 140 C282 200 250 300 230 360 C190 380 100 380 40 330 Z" fill={stroke} opacity="0.22" filter="url(#kb)" />}
+      {!bare && <path d="M22 400 V160 C22 92 76 44 150 30 C224 44 278 92 278 160 V400" fill="none" stroke={INK} stroke-opacity="0.12" stroke-width="0.8" />}
 
       <g transform={`rotate(${tilt} 150 220)`} stroke-linecap="round" stroke-linejoin="round">
         {/* ——— hair wash (behind) ——— */}
@@ -204,7 +204,7 @@ const gandoura = 'M108 96 L192 96 L224 150 L204 160 C208 240 212 318 216 386 Q15
         </g>
       </g>
     </g>
-    <path d={arch} fill="none" stroke="currentColor" stroke-opacity="0.2" stroke-width="1" vector-effect="non-scaling-stroke" />
+    {!bare && <path d={arch} fill="none" stroke="currentColor" stroke-opacity="0.2" stroke-width="1" vector-effect="non-scaling-stroke" />}
   </svg>
 </figure>
 

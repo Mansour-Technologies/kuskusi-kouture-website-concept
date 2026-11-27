@@ -1,364 +1,448 @@
 ---
 import Base from '../layouts/Base.astro';
 import Plate from '../components/Plate.astro';
-import Lightbox from '../components/Lightbox.astro';
+import Embed from '../components/Embed.astro';
 import { site } from '../data/site';
-import { pieces, chapters, details, byId, igEmbed, igPost } from '../data/collections';
+import { byId } from '../data/collections';
+import { posts, chronology, igPost, type Post } from '../data/posts';
 
-const hero = [byId('robe-rose'), byId('robe-safran'), byId('jellaba-citron')];
-const nuancier = ['robe-safran', 'jellaba-citron', 'robe-rose', 'jellaba-ivoire', 'gandoura-doree', 'bomber-menthe'].map(byId);
-const nuancierLabel: Record<string, string> = {
-  'robe-safran': 'Safran', 'jellaba-citron': 'Vert citron', 'robe-rose': 'Rose dragée',
-  'jellaba-ivoire': 'Ivoire & noir', 'gandoura-doree': 'Or pâle', 'bomber-menthe': 'Menthe',
-};
-const onInsta = [byId('jellaba-ivoire'), byId('kimono-dentelle'), byId('gandoura-doree')];
-const wa = site.whatsapp ? `https://wa.me/${site.whatsapp}` : null;
+const ivoire = byId('jellaba-ivoire');
+const citron = byId('jellaba-citron');
+
+/** The house's recurring details, each traced to the post where it appears. */
+const details = [
+  { term: 'Capuchon beldi', note: '« inspiré de la jelaba »', from: 'Kimono court en dentelle · 29 mars 2026', to: 'p-dentelle', draw: 'hood' },
+  { term: 'Rangée de boutons noirs', note: 'du col à l’ourlet, poignets assortis', from: 'Jellaba sans capuche · 6 avril 2026', to: 'p-ivoire', draw: 'buttons' },
+  { term: 'Finitions perlées', note: 'au décolleté croisé', from: 'Robe longue · 10 avril 2026', to: 'p-robe', draw: 'pearls' },
+  { term: 'Bas à volants', note: '« pour un tombé impeccable »', from: 'Robe longue · 10 avril 2026', to: 'p-robe', draw: 'ruffle' },
+  { term: 'Panneaux brodés', note: 'bleu nuit sur vert citron', from: 'Jellaba deux pièces · 6 avril 2026', to: 'p-citron', draw: 'panel' },
+  { term: 'Liens à pompons', note: 'à l’encolure dégagée', from: 'Gandoura · 31 mars 2026', to: 'p-pompons', draw: 'tassel' },
+] as const;
+
+const q = (p: Post) => (p.lang === 'fr' ? `« ${p.caption} »` : `“${p.caption}”`);
+const dm = site.instagram.dm;
 ---
 <Base>
-  <!-- HERO — a riad arcade: three real pieces, drawn, under the house's own caption line -->
-  <section class="hero" data-hero aria-labelledby="hero-title">
-    <p class="kicker hero__kicker wrap">Casablanca <span aria-hidden="true">·</span> Mode marocaine moderne<span class="hide-sm"> <span aria-hidden="true">·</span> @{site.instagram.handle}</span></p>
-    <h1 id="hero-title" class="hero__title">
-      <span class="sr-only">Kuskusi Kouture — </span>
-      <span class="hero__l1">Une touche marocaine</span>
-      <em class="hero__l2"><span>dans chaque détail.</span></em>
-    </h1>
-    <div class="hero__arcade">
-      {hero.map((p, i) => (
-        <div class:list={['arch', `arch--${i}`]}>
-          <button type="button" class="arch__btn" data-fiche={p.id} aria-label={`Voir la pièce : ${p.name} (publication du ${p.date})`}>
-            <Plate piece={p} uid={`h${i}`} />
-          </button>
-          <p class="arch__cap"><span class="arch__name">{p.name.split(' — ')[0]}</span> <a href={igPost(p.code)} target="_blank" rel="noopener noreferrer">Voir la photo officielle<br />sur Instagram<span aria-hidden="true"> ↗</span><span class="sr-only"> : {p.name} (nouvel onglet)</span></a></p>
-        </div>
-      ))}
+  <!-- HERO — saffron field (the colour of the house's April 2026 robe), the real KK lockup, the house's own caption.
+       Drawing only: the hero never waits on Instagram. -->
+  <section class="hero" data-hero aria-labelledby="hero-t">
+    <div class="hero__stage">
+      <p class="hero__ghost kk" aria-hidden="true"><span>K</span><span>K</span></p>
+      <Plate piece={citron} uid="hero-c" bare class="hero__fig hero__fig--b" label="Croquis original d’après la jellaba deux pièces vert citron publiée le 6 avril 2026" />
+      <Plate piece={ivoire} uid="hero-i" bare class="hero__fig hero__fig--a" label="Croquis original d’après la jellaba sans capuche ivoire à boutons noirs publiée le 6 avril 2026" />
     </div>
-    <div class="hero__foot wrap">
-      <p class="hero__src small">« Une touche marocaine dans chaque détail » — légende des publications @{site.instagram.handle}. Dessins originaux d’après trois pièces publiées en avril 2026 : touchez une arche pour voir la photo officielle.</p>
+    <div class="hero__txt">
+      <p class="hero__lockup" aria-label="Kuskusi Kouture">
+        <span class="kk" aria-hidden="true"><span>K</span><span>K</span></span>
+        <span class="hero__name" aria-hidden="true">Kuskusi Kouture</span>
+      </p>
+      <p class="kicker hero__kicker">Casablanca · prêt-à-porter marocain</p>
+      <h1 id="hero-t">Une touche marocaine <em>dans chaque détail</em></h1>
+      <p class="hero__src">Légende de la maison sur Instagram, printemps 2026.</p>
       <div class="hero__cta">
-        <a class="btn btn--solid" href={site.instagram.dm} target="_blank" rel="noopener noreferrer">Écrire à la maison<span class="sr-only"> sur Instagram (nouvel onglet)</span></a>
-        <a class="link" href="#vestiaire">Le vestiaire</a>
+        <a class="btn btn--solid" href="#creations">Découvrir les créations</a>
+        <a class="link" href={dm} target="_blank" rel="noopener noreferrer">Contacter la maison<span class="sr-only"> sur Instagram (nouvel onglet)</span></a>
       </div>
     </div>
+    <p class="hero__credit">Croquis d’après les deux jellabas publiées le 6 avril 2026. Les photographies de la maison suivent.</p>
   </section>
 
-  <!-- NUANCIER — the season's real colours, each one a piece -->
-  <section class="nu" aria-labelledby="nu-title">
-    <h2 id="nu-title" class="sr-only">Le nuancier de la saison</h2>
-    <ol class="nu__list">
-      {nuancier.map((p) => (
-        <li style={`--c:${p.colors[0]};--d:${p.id === 'jellaba-ivoire' ? '#151515' : p.colors[1]}`}>
-          <button type="button" data-fiche={p.id}>
-            <span class="nu__name serif">{nuancierLabel[p.id]}</span>
-            <span class="nu__piece small">{p.name.split(' — ')[0]}</span>
-          </button>
-        </li>
-      ))}
-    </ol>
-  </section>
-
-  <!-- 01 LA MAISON -->
-  <section id="maison" class="ma wrap" aria-labelledby="ma-title">
-    <p class="kicker num rv">01 — La maison</p>
-    <div class="ma__grid">
-      <div class="ma__quote rv">
-        <h2 id="ma-title"><em>Simplicity</em> with sophistication.</h2>
-        <blockquote>
-          <p lang="en">“{site.bio}”</p>
-          <footer class="small muted">— bio Instagram de @{site.instagram.handle}. En français : « allier simplicité et sophistication, en honorant notre héritage marocain » (traduction proposée).</footer>
-        </blockquote>
-        <p class="measure ma__lede">Pas de caftan de cérémonie surchargé : des pièces du quotidien — jellabas légères, kimonos, gandouras, robes longues, et même une veste bomber — où la touche marocaine tient dans un détail. Un capuchon beldi, une rangée de boutons, des liens à pompons.</p>
-      </div>
-      <dl class="ma__facts rv">
-        <div><dt class="kicker">Ville</dt><dd>Casablanca <span class="muted small">— lieu indiqué sur les publications</span></dd></div>
-        <div><dt class="kicker">À trouver</dt><dd><a href={site.stockist.url} target="_blank" rel="noopener noreferrer">{site.stockist.name}</a>, médina de {site.stockist.city} <span class="muted small">— adresse épinglée dans la bio Instagram</span></dd></div>
-        <div><dt class="kicker">Rendez-vous</dt><dd><a href={site.popup.post} target="_blank" rel="noopener noreferrer">Spring Pop-Up, Mooon Studio</a>, Casablanca — {site.popup.dates} <span class="muted small">(<a href={site.popup.press} target="_blank" rel="noopener noreferrer">MWN Lifestyle</a>)</span></dd></div>
-        <div><dt class="kicker">Vestiaire</dt><dd>Jellabas, kimonos, gandouras, robes, vestes — et une sélection <em>Kids</em> <span class="muted small">(story à la une)</span></dd></div>
-        <div><dt class="kicker">Création</dt><dd>{site.designer} <span class="muted small">— selon la page Facebook « Kuskusi Zhor Kouture », à confirmer par la maison</span></dd></div>
-        <div><dt class="kicker">Voix</dt><dd>Légendes en français, hashtags <span lang="en">#MoroccanHeritage #MadeInMorocco #ModernMoroccan</span></dd></div>
-      </dl>
-    </div>
-  </section>
-
-  <hr class="zrule" />
-
-  <!-- 02 LE VESTIAIRE -->
-  <section id="vestiaire" class="ve" aria-labelledby="ve-title">
-    <div class="wrap ve__head">
-      <p class="kicker num rv">02 — Le vestiaire</p>
-      <h2 id="ve-title" class="rv">Douze pièces, <em>telles que publiées</em> au printemps 2026.</h2>
-      <p class="measure muted rv">Chaque arche est un dessin original d’après une publication officielle de @{site.instagram.handle} : même couleur, même coupe, même détail, même décor. Touchez une pièce pour lire la légende de la maison et afficher la photo officielle.</p>
-    </div>
-    {chapters.map((c, ci) => {
-      const list = pieces.filter((p) => p.chapter === c.id);
-      return (
-        <div class="ch" id={`ch-${c.id}`}>
-          <div class="wrap ch__head rv">
-            <h3>{c.title}</h3>
-            <p class="kicker muted">{c.kicker} · {list.length} pièces</p>
+  <!-- 01 CRÉATIONS — the real pieces, immediately, as Instagram publishes them -->
+  <section id="creations" class="cr" aria-labelledby="cr-t">
+    <div class="wrap cr__grid">
+      <div id="p-robe" class="cr__open">
+        <header class="cr__head">
+          <p class="kicker">01 — Printemps 2026 · Casablanca</p>
+          <h2 id="cr-t">Les créations</h2>
+          <p class="cr__lede">Les pièces telles que la maison les a publiées, avec ses propres mots. Chaque image est l’intégration officielle d’Instagram : rien n’est recadré, rien n’est hébergé ici.</p>
+        </header>
+        <article class="pc pc--robe" aria-labelledby="t-robe">
+          <div class="cap">
+            <p class="cap__n">01</p>
+            <h3 id="t-robe" class="cap__t">{posts.robe.title}</h3>
+            <p class="cap__d"><time datetime={posts.robe.iso}>{posts.robe.date}</time> · Casablanca</p>
+            <blockquote class="cap__q cap__q--big" lang="fr"><p>{q(posts.robe)}</p></blockquote>
+            <p class="cap__l">{posts.robe.look}</p>
           </div>
-          <ul class="rail" aria-label={c.title}>
-            {list.map((p, i) => (
-              <li class="card">
-                <button type="button" data-fiche={p.id} data-lb aria-label={`Voir la pièce : ${p.name}`}>
-                  <Plate piece={p} uid={`v${ci}${i}`} />
-                </button>
-                <p class="card__name">{p.name}</p>
-                <p class="card__date small muted">Instagram · {p.date} — <a href={igPost(p.code)} target="_blank" rel="noopener noreferrer">Voir la photo officielle sur Instagram<span aria-hidden="true"> ↗</span><span class="sr-only"> : {p.name} (nouvel onglet)</span></a></p>
-              </li>
-            ))}
-          </ul>
+          <Embed post={posts.robe} />
+        </article>
+      </div>
+
+      <div class="pc-pair">
+        <p class="pc-pair__lbl">Deux jellabas, publiées le même jour</p>
+        <article id="p-citron" class="pc pc--citron">
+          <div class="cap cap--top">
+            <p class="cap__n">02</p>
+            <h3 class="cap__t">{posts.citron.title}</h3>
+            <p class="cap__d"><time datetime={posts.citron.iso}>{posts.citron.date}</time> · Casablanca</p>
+          </div>
+          <Embed post={posts.citron} />
+          <div class="cap">
+            <blockquote class="cap__q" lang="fr"><p>{q(posts.citron)}</p></blockquote>
+            <p class="cap__l">{posts.citron.look}</p>
+          </div>
+        </article>
+        <article id="p-ivoire" class="pc pc--ivoire">
+          <div class="cap cap--top">
+            <p class="cap__n">03</p>
+            <h3 class="cap__t">{posts.ivoire.title}</h3>
+            <p class="cap__d"><time datetime={posts.ivoire.iso}>{posts.ivoire.date}</time> · Casablanca</p>
+          </div>
+          <Embed post={posts.ivoire} />
+          <div class="cap">
+            <blockquote class="cap__q" lang="fr"><p>{q(posts.ivoire)}</p></blockquote>
+            <p class="cap__l">{posts.ivoire.look}</p>
+          </div>
+        </article>
+      </div>
+
+      <article id="p-doree" class="pc pc--doree">
+        <div class="cap">
+          <p class="cap__n">04</p>
+          <h3 class="cap__t">{posts.doree.title}</h3>
+          <p class="cap__d"><time datetime={posts.doree.iso}>{posts.doree.date}</time> · Casablanca</p>
+          <blockquote class="cap__q cap__q--big" lang="fr"><p>{q(posts.doree)}</p></blockquote>
+          <p class="cap__l">{posts.doree.look}</p>
         </div>
-      );
-    })}
+        <Embed post={posts.doree} />
+      </article>
+
+      <article id="p-dentelle" class="pc pc--dentelle">
+        <Embed post={posts.dentelle} />
+        <div class="cap">
+          <p class="cap__n">05</p>
+          <h3 class="cap__t">{posts.dentelle.title}</h3>
+          <p class="cap__d"><time datetime={posts.dentelle.iso}>{posts.dentelle.date}</time> · Casablanca</p>
+          <blockquote class="cap__q" lang="fr"><p>{q(posts.dentelle)}</p></blockquote>
+          <p class="cap__l">{posts.dentelle.look}</p>
+        </div>
+      </article>
+
+      <p class="cr__more">Toutes les publications : <a href={site.instagram.url} target="_blank" rel="noopener noreferrer">@{site.instagram.handle}<span class="sr-only"> sur Instagram (nouvel onglet)</span> ↗</a></p>
+    </div>
   </section>
 
-  <!-- 03 LE DÉTAIL -->
-  <section id="detail" class="de on-dark" aria-labelledby="de-title">
+  <!-- 02 DÉTAILS — the vocabulary the house repeats, then three close looks -->
+  <section id="details" class="de on-dark" aria-labelledby="de-t">
+    <div class="wrap de__grid">
+      <div class="de__side">
+        <p class="kicker">02 — Détails & matières</p>
+        <h2 id="de-t">Dans chaque <em>détail</em></h2>
+        <p class="de__lede">« Notre touche marocaine », écrit la maison. Relevée dans ses publications, elle tient à quelques gestes précis, repris d’une pièce à l’autre.</p>
+        <ol class="de__list">
+          {details.map((d) => (
+            <li>
+              <svg class="de__ico" viewBox="0 0 80 80" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1">
+                {d.draw === 'hood' && <path d="M14 66 C14 34 26 12 40 8 C54 12 66 34 66 66 M24 66 C26 44 32 30 40 26 C48 30 54 44 56 66" />}
+                {d.draw === 'buttons' && <><path d="M30 6 V74 M50 6 V74" />{[12, 22, 32, 42, 52, 62].map((y) => <circle cx="40" cy={y} r="3" fill="currentColor" />)}</>}
+                {d.draw === 'pearls' && <><path d="M16 10 L40 58 L64 10" />{[0, 1, 2, 3, 4, 5].map((k) => <><circle cx={19 + k * 3.8} cy={17 + k * 7.6} r="2" /><circle cx={61 - k * 3.8} cy={17 + k * 7.6} r="2" /></>)}</>}
+                {d.draw === 'ruffle' && <path d="M8 30 H72 M8 30 L4 60 Q10 52 16 60 Q22 52 28 60 Q34 52 40 60 Q46 52 52 60 Q58 52 64 60 Q70 52 76 60 L72 30" />}
+                {d.draw === 'panel' && <><rect x="20" y="10" width="40" height="60" /><path d="M40 14 L56 30 L40 46 L24 30 Z M40 34 L56 50 L40 66 L24 50 Z" /></>}
+                {d.draw === 'tassel' && <path d="M40 4 V34 M40 34 C30 44 30 58 34 74 M40 34 C50 44 50 58 46 74 M40 34 V74 M36 34 H44" />}
+              </svg>
+              <div>
+                <h3>{d.term}</h3>
+                <p>{d.note}</p>
+                <a href={`#${d.to}`}>{d.from}</a>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div class="de__wall">
+        {([['tanyla', 'p-tanyla'], ['tanila', 'p-tanila'], ['pompons', 'p-pompons']] as const).map(([k, id], i) => {
+          const p = posts[k];
+          return (
+            <article id={id} class:list={['dp', `dp--${i}`]}>
+              <div class="cap cap--top">
+                <h3 class="cap__t">{p.title}</h3>
+                <p class="cap__d"><time datetime={p.iso}>{p.date}</time>{p.iso.startsWith('2026') && ' · Casablanca'}</p>
+              </div>
+              <Embed post={p} />
+              <div class="cap">
+                <blockquote class="cap__q" lang={p.lang}><p>{q(p)}</p></blockquote>
+                {p.fr && <p class="cap__fr">Traduction proposée : « {p.fr} »</p>}
+                <p class="cap__l">{p.look}</p>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 LOOKBOOK — Ramadan 2024 in the riad salon, and the Resort film -->
+  <section id="lookbook" class="lb on-dark" aria-labelledby="lb-t">
     <div class="wrap">
-      <p class="kicker num rv">03 — Le détail</p>
-      <h2 id="de-title" class="rv">La touche marocaine, <em>détail par détail.</em></h2>
-      <p class="measure de__lede rv">« Notre touche marocaine », écrit la maison. La voici, relevée pièce par pièce dans ses propres publications.</p>
-      <ol class="de__list">
-        {details.map((d, i) => (
-          <li class="rv">
-            <svg class="de__ico" viewBox="0 0 80 80" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="0.9">
-              {d.draw === 'hood' && <path d="M14 66 C14 34 26 12 40 8 C54 12 66 34 66 66 M24 66 C26 44 32 30 40 26 C48 30 54 44 56 66" />}
-              {d.draw === 'buttons' && <><path d="M30 6 V74 M50 6 V74" />{[12, 22, 32, 42, 52, 62].map((y) => <circle cx="40" cy={y} r="3" fill="currentColor" />)}</>}
-              {d.draw === 'pearls' && <><path d="M16 10 L40 58 L64 10" />{[0, 1, 2, 3, 4, 5].map((k) => <><circle cx={19 + k * 3.8} cy={17 + k * 7.6} r="2" /><circle cx={61 - k * 3.8} cy={17 + k * 7.6} r="2" /></>)}</>}
-              {d.draw === 'ruffle' && <path d="M8 30 H72 M8 30 L4 60 Q10 52 16 60 Q22 52 28 60 Q34 52 40 60 Q46 52 52 60 Q58 52 64 60 Q70 52 76 60 L72 30" />}
-              {d.draw === 'panel' && <><rect x="20" y="10" width="40" height="60" /><path d="M40 14 L56 30 L40 46 L24 30 Z M40 34 L56 50 L40 66 L24 50 Z" /></>}
-              {d.draw === 'tassel' && <path d="M40 4 V34 M40 34 C30 44 30 58 34 74 M40 34 C50 44 50 58 46 74 M40 34 V74 M36 34 H44" />}
-            </svg>
-            <span class="de__n kicker">{String(i + 1).padStart(2, '0')}</span>
-            <h3>{d.term}</h3>
-            <p class="small de__from">{d.note}<br />Sur : <button type="button" class="de__link" data-fiche={d.piece}>{d.from}</button></p>
-          </li>
-        ))}
+      <header class="lb__head">
+        <p class="kicker">03 — Lookbook 2024</p>
+        <h2 id="lb-t">Ramadan 2024, <em>au salon</em></h2>
+        <p class="lb__lede">Avant les légendes en français, la maison écrivait en anglais et donnait des noms à ses pièces : Thairy, Tanyla, Nelya, Bad3ia Tanila. Banquettes de brocart, plafond de cèdre, tableau au cadre doré ; les commandes se prennent en message privé.</p>
+      </header>
+      <div class="lb__row">
+        {(['thairy', 'kaki', 'resort'] as const).map((k, i) => {
+          const p = posts[k];
+          return (
+            <article id={`p-${k}`} class:list={['lk', `lk--${i}`]}>
+              <div class="cap cap--top">
+                <p class="cap__n">{['Mars', 'Mars', 'Juillet'][i]} 2024</p>
+                <h3 class="cap__t">{p.title}</h3>
+                <p class="cap__d"><time datetime={p.iso}>{p.date}</time></p>
+              </div>
+              <Embed post={p} />
+              <div class="cap">
+                <blockquote class="cap__q" lang="en"><p>{q(p)}</p></blockquote>
+                {p.fr && <p class="cap__fr">Traduction proposée : « {p.fr} »</p>}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 LA MAISON — Casablanca, Marrakech, the pop-up, the public chronology -->
+  <section id="maison" class="ma" aria-labelledby="ma-t">
+    <div class="wrap ma__grid">
+      <header class="ma__head">
+        <p class="kicker">04 — La maison</p>
+        <h2 id="ma-t">Casablanca, <em>Marrakech</em></h2>
+        <blockquote class="ma__bio" lang="en">
+          <p>“At Kuskusi Kouture, we blend simplicity with sophistication while honoring our Moroccan heritage.”</p>
+        </blockquote>
+        <p class="ma__bio-fr">Bio Instagram de la maison. Traduction proposée : « Chez Kuskusi Kouture, nous allions simplicité et sophistication, dans le respect de notre héritage marocain. »</p>
+      </header>
+
+      <article id="p-popup" class="ma__pop">
+        <div class="cap cap--top">
+          <p class="cap__n">18 & 19 avril 2026</p>
+          <h3 class="cap__t">Spring Pop-Up, Mooon Studio</h3>
+          <p class="cap__d">Publication de @mooonstudio_ · <time datetime={posts.popup.iso}>{posts.popup.date}</time></p>
+        </div>
+        <Embed post={posts.popup} />
+      </article>
+
+      <div class="ma__facts">
+        <dl class="ma__dl">
+          <div><dt>Casablanca</dt><dd>Les publications de 2026 sont géolocalisées à Casablanca.</dd></div>
+          <div><dt>Marrakech</dt><dd>La bio Instagram épingle <a href={site.stockist.url} target="_blank" rel="noopener noreferrer">@{site.stockist.handle}<span class="sr-only"> (nouvel onglet)</span></a>, adresse de créateurs marocains dans la médina. Nature du lien à confirmer avec la maison.</dd></div>
+          <div><dt>Pop-up</dt><dd>Mooon Studio, 123 rue Ibnou Majat, quartier des Princesses : la maison figure parmi les marques annoncées par <a href={igPost(posts.popup.code)} target="_blank" rel="noopener noreferrer">@mooonstudio_<span class="sr-only"> (nouvel onglet)</span></a> et par <a href={site.popup.press} target="_blank" rel="noopener noreferrer">MWN Lifestyle<span class="sr-only"> (nouvel onglet)</span></a> (16 avril 2026).</dd></div>
+          <div><dt>Création</dt><dd>« Les nouveautés, modèles et créations de Zhor Kuskusi », selon la page Facebook de la maison. Nom de la créatrice à confirmer.</dd></div>
+        </dl>
+        <h3 class="ma__ch-t">Les collections, telles que publiées</h3>
+        <ol class="ma__ch">
+          {chronology.map((c) => (
+            <li><span class="ma__when">{c.when}</span><strong>{c.what}</strong><span class="ma__note">{c.note}</span></li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 CONTACT — the house takes orders by Instagram DM -->
+  <section id="contact" class="ct on-dark" aria-labelledby="ct-t">
+    <div class="wrap ct__grid">
+      <div class="ct__main">
+        <p class="kicker">05 — Contact</p>
+        <h2 id="ct-t">Contacter <em>la maison</em></h2>
+        <p class="ct__lede">La maison prend les commandes en message privé, comme l’indiquent ses légendes :</p>
+        <ul class="ct__quotes">
+          <li lang="en">“Order yours via DM !” <span>17 mars 2024</span></li>
+          <li lang="en">“Orders via DM. We deliver everywhere in Morocco.” <span>11 mars 2024</span></li>
+        </ul>
+        <div class="ct__ctas">
+          <a class="btn btn--light btn--big ct__dm" href={dm} target="_blank" rel="noopener noreferrer">Écrire à @{site.instagram.handle}<span class="sr-only"> en message privé sur Instagram (nouvel onglet)</span></a>
+          <a class="link" href={site.instagram.url} target="_blank" rel="noopener noreferrer">Voir le profil Instagram<span class="sr-only"> (nouvel onglet)</span></a>
+          {site.facebook && <a class="link" href={site.facebook.url} target="_blank" rel="noopener noreferrer">Page Facebook · {site.facebook.name}<span class="sr-only"> (nouvel onglet)</span></a>}
+        </div>
+      </div>
+      <ol class="ct__steps">
+        <li><span>01</span><p><strong>Choisissez une pièce.</strong> Notez son nom ou la date de sa publication : « Robe longue, 10 avril 2026 ».</p></li>
+        <li><span>02</span><p><strong>Écrivez en message privé</strong> à @{site.instagram.handle} sur Instagram.</p></li>
+        <li><span>03</span><p><strong>Voyez avec la maison</strong> la taille, le coloris, le prix et la livraison : ils ne sont pas publiés ici.</p></li>
       </ol>
     </div>
   </section>
-
-  <!-- 04 SUR INSTAGRAM — official embeds, click-to-load -->
-  <section id="instagram" class="ig wrap" aria-labelledby="ig-title">
-    <p class="kicker num rv">04 — Sur Instagram</p>
-    <div class="ig__head">
-      <h2 id="ig-title" class="rv">Les vraies photos, <em>chez la maison.</em></h2>
-      <p class="measure muted rv">Les photographies appartiennent à Kuskusi Kouture : elles ne sont pas copiées ici. Chaque cadre charge la publication officielle depuis Instagram, seulement si vous le demandez.</p>
-    </div>
-    <ul class="ig__grid">
-      {onInsta.map((p, i) => (
-        <li class="ig__item rv" data-embed-box>
-          <div class="ig__poster">
-            <Plate piece={p} uid={`ig${i}`} />
-            <button type="button" class="ig__load" data-embed={igEmbed(p.code)} data-title={`Publication Instagram officielle : ${p.name}`}>
-              <span class="kicker">Instagram · {p.date}</span>
-              <span class="serif ig__cta">Afficher la publication officielle</span>
-              <span class="small">Chargement depuis instagram.com</span>
-            </button>
-          </div>
-          <p class="ig__cap"><span class="serif">« {p.caption} »</span> <a class="small" href={igPost(p.code)} target="_blank" rel="noopener noreferrer">Voir sur Instagram<span class="sr-only"> : {p.name} (nouvel onglet)</span></a></p>
-        </li>
-      ))}
-    </ul>
-    <p class="ig__more rv"><a class="btn" href={site.instagram.url} target="_blank" rel="noopener noreferrer">Tout le vestiaire sur @{site.instagram.handle}<span class="sr-only"> (nouvel onglet)</span></a></p>
-  </section>
-
-  <!-- 05 ÉCRIRE -->
-  <section id="contact" class="ct" aria-labelledby="ct-title">
-    <div class="wrap ct__grid">
-      <div class="ct__intro">
-        <p class="kicker num rv">05 — Écrire à la maison</p>
-        <h2 id="ct-title" class="rv">Une pièce vous plaît ? <em class="nowrap">Écrivez-lui.</em></h2>
-        <p class="measure muted rv">La maison publie et répond sur Instagram. Donnez le nom de la pièce et la date de la publication : c’est le plus simple pour se comprendre.</p>
-      </div>
-      <ol class="ct__steps">
-          <li class="rv"><span class="kicker">01</span><strong class="serif">Repérer</strong><span class="small muted">Une pièce du vestiaire ou du compte Instagram.</span></li>
-          <li class="rv"><span class="kicker">02</span><strong class="serif">Écrire</strong><span class="small muted">En message direct, avec le nom de la pièce.</span></li>
-          <li class="rv"><span class="kicker">03</span><strong class="serif">Échanger</strong><span class="small muted">Taille, couleur, délai, retrait à Casablanca ou chez House of Chiki : à voir avec la maison.</span></li>
-        </ol>
-      <div class="ct__side">
-        <a class="ct__dm rv" href={site.instagram.dm} target="_blank" rel="noopener noreferrer">
-          <span class="kicker">Message direct Instagram</span>
-          <span class="ct__handle serif"><span class="ct__at">@</span>{site.instagram.handle}</span>
-          <span class="ct__go" aria-hidden="true">Écrire →</span>
-          <span class="sr-only">(nouvel onglet)</span>
-        </a>
-        <div class="ct__alt">
-          <a class="btn" href={site.instagram.url} target="_blank" rel="noopener noreferrer">Voir le profil<span class="sr-only"> Instagram (nouvel onglet)</span></a>
-          {wa && <a class="btn" href={wa} target="_blank" rel="noopener noreferrer">WhatsApp<span class="sr-only"> (nouvel onglet)</span></a>}
-          {site.facebook && <a class="btn" href={site.facebook} target="_blank" rel="noopener noreferrer">Facebook<span class="sr-only"> (nouvel onglet)</span></a>}
-        </div>
-        <figure class="ct__ex rv">
-          <figcaption class="kicker">Exemple de message (proposé)</figcaption>
-          <p>Bonjour Kuskusi Kouture ! La <em>Jellaba deux pièces vert citron</em> (publication du 5 avril) existe-t-elle en taille M ? Merci 🤍</p>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <Lightbox />
 </Base>
 
 <style>
-  .num { color: var(--encre-2); margin-bottom: 1.5rem; }
-
   /* ——— HERO ——— */
-  .hero { position: relative; padding-top: clamp(1.25rem, 3vw, 2.5rem); overflow: clip; display: flex; flex-direction: column; }
-  .hero__kicker { order: 0; } .hero__l1 { order: 1; } .hero__arcade { order: 2; } .hero__l2 { order: 3; } .hero__foot { order: 4; }
-  .hero__kicker { text-align: center; color: var(--encre-2); margin: 0 auto clamp(0.75rem, 2vw, 1.5rem); }
-  .hero__title { display: contents; }
-  .hero__l1, .hero__l2 { text-align: center; padding-inline: var(--gutter); position: relative; z-index: 2; font-family: var(--serif); font-weight: 400; font-variation-settings: 'opsz' 96; }
-  .hero__l1 { display: block; font-size: clamp(2.7rem, min(7vw, 11vh), 7rem); line-height: 0.95; letter-spacing: -0.035em; }
-  .hero__l2 { display: block; font-size: clamp(2.4rem, min(6vw, 9.5vh), 6rem); line-height: 1; letter-spacing: -0.03em; position: relative; z-index: 3; margin-top: 0.05em; color: var(--encre); }
-  .hero__arcade { position: relative; display: grid; grid-template-columns: 1fr 1.35fr 1fr; align-items: end; gap: clamp(0.75rem, 2.2vw, 2.5rem); width: min(100% - 2 * var(--gutter), 780px, 74vh); margin: clamp(1rem, 2.5vw, 2rem) auto 0; }
-  .arch { position: relative; z-index: 1; }
-  .arch__btn { display: block; width: 100%; padding: 0; border: 0; background: none; transition: transform 0.7s var(--ease); }
-  .arch__btn:hover { transform: translateY(-6px); }
-  .arch__cap { margin: 0.7rem 0 0; text-align: center; font-size: var(--fs-small); line-height: 1.35; display: grid; justify-items: center; }
-  .arch__name { font-family: var(--serif); font-style: italic; font-size: 1.05rem; font-variation-settings: 'opsz' 28; }
-  .arch__cap a { font-size: 0.625rem; line-height: 1.5; letter-spacing: 0.14em; padding-block: 0.3rem; text-transform: uppercase; color: var(--encre-2); min-height: 44px; display: inline-flex; align-items: center; text-underline-offset: 0.3em; }
-  .arch--0, .arch--2 { margin-bottom: clamp(2.5rem, 7vw, 6rem); }
-  .hero__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem 2rem; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2.5rem, 5vw, 4rem); position: relative; z-index: 2; }
-  .hero__src { margin: 0; max-width: 40rem; color: var(--encre-2); }
-  .hero__cta { display: flex; align-items: center; gap: 1.5rem; }
-
-  .js .arch { animation: archIn 1.2s var(--ease) both; }
-  .js .arch--1 { animation-delay: 0.1s; } .js .arch--0 { animation-delay: 0.28s; } .js .arch--2 { animation-delay: 0.4s; }
-  @keyframes archIn { from { clip-path: inset(100% 0 0 0); transform: translateY(40px); } to { clip-path: inset(0); transform: none; } }
-
-  @media (max-width: 700px) {
-    .hero__arcade { grid-template-columns: 1fr 2.2fr 1fr; width: calc(100% + 30vw); margin-left: -15vw; gap: 0.75rem; }
-    .arch--0, .arch--2 { margin-bottom: 4.5rem; }
-    .arch--0 .arch__cap, .arch--2 .arch__cap { visibility: hidden; }
-    .hide-sm { display: none; }
-    .hero__foot { flex-direction: column-reverse; align-items: stretch; text-align: center; padding-top: 1.25rem; }
-    .hero__cta { flex-direction: column; gap: 0.5rem; }
-    .hero__cta .btn { width: 100%; }
-  }
-
-  /* ——— NUANCIER ——— */
-  .nu__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); }
-  .nu__list li { background: var(--c); color: #1a1a1a; transition: flex 0.5s; }
-  .nu__list button { width: 100%; min-height: clamp(7rem, 13vw, 11rem); padding: 1rem; border: 0; background: linear-gradient(to top, color-mix(in srgb, var(--d) 30%, transparent), transparent 60%); display: flex; flex-direction: column; justify-content: flex-end; gap: 0.2rem; text-align: left; transition: background-size 0.4s; }
-  .nu__list button:hover .nu__name { font-style: italic; }
-  .nu__name { font-size: clamp(1.25rem, 2vw, 1.75rem); line-height: 1.05; }
-  .nu__piece { opacity: 0.8; }
-  @media (max-width: 760px) { .nu__list { grid-template-columns: repeat(3, 1fr); } .nu__list button { min-height: 6.5rem; padding: 0.75rem; } }
-
-  /* ——— MAISON ——— */
-  .ma { padding-block: clamp(4rem, 9vw, 8rem); }
-  .ma__grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(2rem, 6vw, 6rem); align-items: start; }
-  .ma__quote h2 { font-size: var(--fs-1); margin-bottom: 1.5rem; }
-  .ma__quote blockquote { margin: 0 0 2rem; }
-  .ma__quote blockquote p { font-family: var(--serif); font-size: var(--fs-3); line-height: 1.3; font-style: italic; margin-bottom: 0.6rem; font-variation-settings: 'opsz' 28; }
-  .ma__lede { font-size: 1.125rem; }
-  .ma__facts { margin: 0; border-top: 1px solid var(--line); }
-  .ma__facts > div { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
-  .ma__facts dt { padding-top: 0.3rem; color: var(--encre-2); }
-  .ma__facts dd { margin: 0; }
-  .ma__facts a { text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
-  @media (max-width: 900px) { .ma__grid { grid-template-columns: 1fr; } }
-  @media (max-width: 420px) { .ma__facts > div { grid-template-columns: 1fr; gap: 0.2rem; } }
-
-  /* ——— VESTIAIRE ——— */
-  .ve { padding-block: clamp(4rem, 8vw, 7rem) clamp(2rem, 4vw, 3rem); }
-  .ve__head { display: grid; grid-template-columns: 1.5fr 1fr; column-gap: clamp(2rem, 5vw, 5rem); align-items: end; }
-  .ve__head .num { grid-column: 1 / -1; }
-  .ve__head h2 { font-size: var(--fs-1); max-width: 15ch; }
-  .ve__head p.measure { margin: 0; }
-  @media (max-width: 900px) { .ve__head { grid-template-columns: 1fr; } .ve__head h2 { margin-bottom: 1.25rem; } }
-  .ch { margin-top: clamp(2.5rem, 6vw, 5rem); }
-  .ch__head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 0.75rem; margin-bottom: 1.5rem; }
-  .ch__head h3 { font-size: var(--fs-2); }
-  .ch__head p { margin: 0; }
-  .rail { list-style: none; margin: 0; padding: 0 var(--gutter) 1rem; display: grid; grid-auto-flow: column; grid-auto-columns: clamp(15rem, 23vw, 22rem); gap: clamp(1rem, 2.4vw, 2.25rem); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: thin; max-width: var(--max); margin-inline: auto; }
-  .rail { position: relative; }
-  .card { scroll-snap-align: start; position: relative; }
-  .card:nth-child(even) { margin-top: clamp(1.5rem, 4vw, 3.5rem); }
-  .card button { display: block; width: 100%; padding: 0; border: 0; background: none; transition: transform 0.6s var(--ease); }
-  .card button:hover { transform: translateY(-6px); }
-  .card__name { font-family: var(--serif); font-size: 1.25rem; line-height: 1.2; margin: 0.9rem 0 0.2rem; font-variation-settings: 'opsz' 28; }
-  .card__date { margin: 0; }
-  .card__date a { color: var(--encre); display: inline-flex; min-height: 44px; align-items: center; }
-  @media (max-width: 700px) { .rail { grid-auto-columns: 68vw; } }
-  @media (min-width: 1000px) {
-    .ch { display: grid; grid-template-columns: minmax(14rem, 1fr) 3fr; max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); gap: 2rem; align-items: start; }
-    .ch__head { display: block; border: 0; border-top: 1px solid var(--line); padding: 1rem 0 0; margin: 0; position: sticky; top: calc(var(--header-h) + 1.5rem); }
-    .ch__head h3 { margin-bottom: 0.6rem; }
-    .rail { padding: 0 0 1rem; margin: 0; max-width: none; grid-auto-columns: calc((100% - 2 * 2.25rem) / 3); scroll-padding-inline: 0; }
-    .ch .wrap { padding-inline: 0; }
-  }
-
-  /* ——— DÉTAIL ——— */
-  .de { background: var(--velours); color: var(--blanc); padding-block: clamp(4.5rem, 9vw, 8rem); }
-  .de .num { color: #e5c9cc; }
-  .de h2 { font-size: var(--fs-1); max-width: 14ch; }
-  .de__lede { color: #ecd9db; margin: 1.5rem 0 3rem; font-size: 1.125rem; }
-  .de__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgb(251 248 243 / 0.22); }
-  .de__list li { position: relative; padding: 2rem 2rem 2rem 0; border-bottom: 1px solid rgb(251 248 243 / 0.22); display: grid; grid-template-columns: 4.5rem 1fr; column-gap: 1.25rem; align-items: start; }
-  .de__list li:not(:nth-child(3n)) { border-right: 1px solid rgb(251 248 243 / 0.22); }
-  .de__list li:not(:nth-child(3n + 1)) { padding-left: 2rem; }
-  .de__ico { grid-row: span 3; width: 4.5rem; height: 4.5rem; color: #efd27a; }
-  .de__n { color: #e5c9cc; }
-  .de__list h3 { font-size: clamp(1.6rem, 2.4vw, 2.2rem); margin: 0.4rem 0 0.6rem; }
-  .de__from { margin: 0; color: #ecd9db; }
-  .de__link { background: none; border: 0; padding: 0; min-height: 44px; color: var(--blanc); text-decoration: underline; text-underline-offset: 0.22em; font-size: inherit; }
-  @media (max-width: 1000px) {
-    .de__list { grid-template-columns: 1fr 1fr; }
-    .de__list li:nth-child(n) { border-right: 0; padding-left: 0; padding-right: 1rem; }
-    .de__list li:nth-child(odd) { border-right: 1px solid rgb(251 248 243 / 0.22); }
-    .de__list li:nth-child(even) { padding-left: 1.5rem; }
-  }
-  @media (max-width: 620px) {
-    .de__list { grid-template-columns: 1fr; }
-    .de__list li:nth-child(n) { border-right: 0; padding: 1.5rem 0; grid-template-columns: 3.5rem 1fr; }
-    .de__ico { width: 3.5rem; height: 3.5rem; }
-  }
-
-  /* ——— INSTAGRAM ——— */
-  .ig { padding-block: clamp(4.5rem, 9vw, 8rem); }
-  .ig__head { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: end; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
-  .ig__head h2 { font-size: var(--fs-1); }
-  .ig__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(1rem, 2.5vw, 2.5rem); align-items: start; }
-  .ig__item:nth-child(2) { margin-top: clamp(2rem, 6vw, 5rem); }
-  .ig__poster { position: relative; }
-  .ig__poster .igf { width: 100%; }
-  .ig__item.is-loaded :global(.plate) { display: none; }
-  .ig__load { position: absolute; inset: auto 8% 8% 8%; display: grid; gap: 0.35rem; padding: 1rem 1.1rem; border: 0; text-align: left; background: color-mix(in srgb, var(--blanc) 92%, transparent); backdrop-filter: blur(6px); color: var(--encre); transition: background-color 0.3s, color 0.3s; }
-  .ig__load:hover { background: var(--encre); color: var(--blanc); }
-  .ig__cta { font-size: 1.25rem; line-height: 1.15; }
-  .ig__cap { margin: 1rem 0 0; display: grid; gap: 0.25rem; }
-  .ig__cap .serif { font-style: italic; font-size: 1.05rem; line-height: 1.4; }
-  .ig__cap a { min-height: 44px; display: inline-flex; align-items: center; }
-  .ig__more { margin-top: 2.5rem; text-align: center; }
+  .hero { position: relative; background: var(--safran); color: var(--encre); min-height: calc(100svh - var(--header-h) - 2rem); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: end; padding-inline: var(--gutter); overflow: hidden; isolation: isolate; }
+  .hero__stage { grid-column: 2; grid-row: 1; position: relative; display: grid; place-items: end center; height: 100%; min-height: 34rem; }
+  .hero__ghost { grid-area: 1 / 1; align-self: center; margin: 0; font-size: min(64vh, 40vw); color: #d4a100; line-height: 0.74; user-select: none; animation: kkIn 1.8s var(--ease) both; }
+  :global(.hero__fig) { grid-area: 1 / 1; margin: 0; height: min(88%, 46rem); width: auto; aspect-ratio: 3 / 4; z-index: 1; }
+  :global(.hero__fig--a) { animation: figIn 1.4s var(--ease) 0.15s both; }
+  :global(.hero__fig--b) { height: min(64%, 34rem); transform: translateX(62%); align-self: end; margin-bottom: 3%; opacity: 0.96; animation: figInB 1.6s var(--ease) 0.4s both; }
+  @keyframes kkIn { from { letter-spacing: 0.12em; opacity: 0; } }
+  @keyframes figIn { from { opacity: 0; transform: translateY(18px); } }
+  @keyframes figInB { from { opacity: 0; transform: translate(62%, 18px); } }
+  .hero__txt { grid-column: 1; grid-row: 1; align-self: center; padding-block: 3rem 5rem; position: relative; z-index: 2; }
+  .hero__lockup { display: inline-grid; justify-items: center; gap: 0.7rem; margin: 0 0 2.6rem; }
+  .hero__lockup .kk { font-size: clamp(4.2rem, 7.2vw, 7rem); }
+  .hero__name { font: 500 0.75rem/1 var(--sans); letter-spacing: 0.5em; text-transform: uppercase; padding-left: 0.5em; white-space: nowrap; }
+  .hero__kicker { margin: 0 0 1.1rem; }
+  @media (max-width: 860px) { .hero__kicker { margin-bottom: 0.7rem; } }
+  .hero h1 { font-size: clamp(2.6rem, 4.9vw, 5.1rem); line-height: 0.98; max-width: 10.5ch; letter-spacing: -0.03em; }
+  .hero h1 em { display: block; }
+  .hero__src { margin: 1.2rem 0 2.2rem; font-size: var(--fs-small); }
+  .hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; }
+  .hero__credit { position: absolute; left: var(--gutter); bottom: 1.4rem; margin: 0; font-size: var(--fs-micro); max-width: 26rem; z-index: 2; opacity: 0.85; }
   @media (max-width: 860px) {
-    .ig__head { grid-template-columns: 1fr; }
-    .ig__grid { grid-template-columns: 1fr; max-width: 26rem; margin-inline: auto; }
-    .ig__item:nth-child(2) { margin-top: 0; }
+    .hero { grid-template-columns: 1fr; align-items: start; min-height: 0; padding-bottom: 2.75rem; }
+    .hero__stage { grid-column: 1; grid-row: 1; height: min(47svh, 30rem); min-height: 18rem; place-items: end center; margin-top: 0.5rem; }
+    .hero__ghost { font-size: min(66vw, 24rem); align-self: end; margin-bottom: 6%; }
+    :global(.hero__fig) { height: 100%; }
+    :global(.hero__fig--b) { display: none; }
+    .hero__txt { grid-row: 2; padding-block: 1.1rem 0; text-align: left; }
+    .hero__lockup { display: none; }
+    .hero h1 { font-size: clamp(2.1rem, 9.6vw, 3.2rem); max-width: none; }
+    .hero h1 em { display: inline; }
+    .hero__src { margin: 0.8rem 0 1.4rem; }
+    .hero__cta { gap: 0.6rem 1.5rem; }
+    .hero__cta .btn { flex: 1 1 100%; }
+    .hero__credit { position: static; grid-row: 3; text-align: left; margin-top: 1.4rem; max-width: none; }
   }
 
-  /* ——— CONTACT ——— */
-  .ct { background: var(--blanc); padding-block: clamp(4.5rem, 9vw, 8rem); border-top: 1px solid var(--line); }
-  .ct__grid { display: grid; grid-template-columns: 1.1fr 1fr; grid-template-areas: 'intro side' 'steps side'; column-gap: clamp(2rem, 6vw, 6rem); align-items: start; }
-  .ct__intro { grid-area: intro; } .ct__steps { grid-area: steps; } .ct__side { grid-area: side; }
-  .ct h2 { font-size: var(--fs-1); margin-bottom: 1.25rem; }
-  .ct__steps { list-style: none; margin: 2.5rem 0 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
-  .ct__steps li { display: grid; grid-template-columns: 3rem 9rem 1fr; gap: 1rem; align-items: baseline; padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
-  .ct__steps strong { font-weight: 400; font-size: 1.6rem; }
-  .ct__dm { display: grid; gap: 0.5rem; padding: clamp(1.5rem, 3.5vw, 2.75rem); background: var(--encre); color: var(--blanc); text-decoration: none; clip-path: var(--arch); padding-top: clamp(4rem, 9vw, 6.5rem); transition: background-color 0.4s; }
-  .ct__dm:hover { background: var(--velours); }
-  .ct__handle { font-size: clamp(2rem, 4.6vw, 3.6rem); line-height: 1; overflow-wrap: anywhere; }
-  .ct__at { font-family: var(--sans); font-weight: 300; font-size: 0.7em; margin-right: 0.05em; vertical-align: 0.08em; }
-  .nowrap { white-space: nowrap; }
-  .ct__go { font: 600 0.75rem/1 var(--sans); letter-spacing: 0.16em; text-transform: uppercase; margin-top: 1rem; }
-  .ct__alt { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
-  .ct__alt .btn { flex: 1; }
-  .ct__ex { margin: 2rem 0 0; padding: 1.25rem 1.4rem; background: var(--chaux); border-left: 2px solid var(--citron); }
-  .ct__ex p { margin: 0.6rem 0 0; font-family: var(--serif); font-size: 1.15rem; line-height: 1.45; font-variation-settings: 'opsz' 28; }
-  @media (max-width: 900px) {
-    .ct__grid { grid-template-columns: 1fr; grid-template-areas: 'intro' 'side' 'steps'; }
-    .ct__steps { margin-top: 3rem; }
+  /* ——— shared caption ——— */
+  .cap { max-width: 30rem; }
+  .cap__n { font: 400 0.8125rem/1 var(--sans); letter-spacing: 0.18em; text-transform: uppercase; margin: 0 0 0.9rem; }
+  .cap__t { font-size: clamp(1.75rem, 2.6vw, 2.5rem); line-height: 1.02; }
+  .cap__d { margin: 0.55rem 0 0; font-size: var(--fs-small); letter-spacing: 0.02em; opacity: 0.85; }
+  .cap--top { margin-bottom: 1.1rem; }
+  .cap__q { margin: 1.3rem 0 0; padding: 0 0 0 1rem; border-left: 1px solid currentColor; font-family: var(--serif); font-style: italic; font-size: clamp(1.1rem, 1.45vw, 1.3rem); line-height: 1.38; font-variation-settings: 'opsz' 28; }
+  .cap__q p { margin: 0; }
+  .cap__q--big { font-size: clamp(1.35rem, 2.2vw, 2rem); line-height: 1.22; }
+  .cap__fr { margin: 0.7rem 0 0; font-size: var(--fs-small); opacity: 0.85; }
+  .cap__l { margin: 0.9rem 0 0; font-size: var(--fs-small); opacity: 0.85; }
+
+  /* ——— 01 CRÉATIONS ——— */
+  .cr { background: var(--chaux); padding-block: clamp(4rem, 8vw, 8rem) clamp(4rem, 8vw, 7rem); }
+  .cr__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.2vw, 2rem); row-gap: clamp(4rem, 9vw, 9rem); max-width: 1440px; }
+  .cr__open { grid-column: 1 / -1; }
+  .cr__head h2 { font-size: var(--fs-1); margin-top: 1.2rem; }
+  .cr__lede { margin-top: 1.4rem; max-width: 27rem; color: var(--encre-2); }
+  .pc { display: grid; gap: 1.5rem; }
+  @media (min-width: 1001px) {
+    .cr__open { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: inherit; }
+    .cr__head { grid-column: 1 / 6; grid-row: 1; }
+    .pc--robe { display: contents; }
+    .pc--robe .cap { grid-column: 1 / 6; grid-row: 2; align-self: end; max-width: 27rem; padding-top: 3rem; }
+    .pc--robe :global(.ig) { grid-column: 7 / 13; grid-row: 1 / span 2; justify-self: end; }
+    .cr__head { align-self: start; }
   }
-  @media (max-width: 520px) { .ct__steps li { grid-template-columns: 2.25rem 1fr; } .ct__steps li .small { grid-column: 2; } }
+  .pc-pair { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: inherit; position: relative; }
+  .pc-pair__lbl { grid-column: 1 / -1; margin: 0 0 2rem; font: 600 var(--fs-micro)/1 var(--sans); letter-spacing: 0.2em; text-transform: uppercase; display: flex; align-items: center; gap: 1rem; }
+  .pc-pair__lbl::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+  .pc--citron { grid-column: 1 / 6; }
+  .pc--ivoire { grid-column: 8 / 13; margin-top: clamp(4rem, 14vw, 14rem); }
+  .pc--doree { grid-column: 2 / 12; grid-template-columns: minmax(0, 1fr) minmax(0, 540px); align-items: center; column-gap: clamp(2rem, 6vw, 6rem); }
+  .pc--doree .cap { max-width: 26rem; justify-self: end; }
+  .pc--dentelle { grid-column: 4 / 12; grid-template-columns: minmax(0, 470px) minmax(0, 1fr); align-items: start; column-gap: 2.5rem; }
+  .pc--dentelle .cap { padding-top: 6rem; }
+  .cr__more { grid-column: 1 / -1; margin: 0; text-align: center; font-size: var(--fs-small); }
+  .cr__more a { display: inline-flex; min-height: 44px; align-items: center; }
+  @media (max-width: 1000px) {
+    .cr__grid { row-gap: 4.5rem; }
+    .cr__open { display: grid; gap: 3.5rem; }
+    .pc, .pc--doree, .pc--dentelle { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr); }
+    .pc--dentelle .cap { order: -1; padding-top: 0; }
+    .pc--doree .cap { order: -1; }
+    .pc--doree .cap { justify-self: start; }
+    .pc-pair { row-gap: 4.5rem; }
+    .pc--citron, .pc--ivoire { grid-column: 1 / -1; margin-top: 0; }
+    .pc--ivoire .cap--top { text-align: right; justify-self: end; }
+  }
+
+  /* ——— 02 DÉTAILS ——— */
+  .de { background: var(--emeraude); color: #f3efe6; padding-block: clamp(4.5rem, 9vw, 8.5rem); }
+  .de__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.2vw, 2rem); max-width: 1440px; }
+  .de__side { grid-column: 1 / 6; align-self: start; position: sticky; top: calc(var(--header-h) + 2rem); }
+  .de h2 { font-size: var(--fs-1); margin-top: 1.2rem; }
+  .de__lede { margin: 1.4rem 0 2.4rem; max-width: 27rem; color: #d8e0d6; }
+  .de__list { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid rgb(243 239 230 / 0.25); }
+  .de__list li { display: grid; grid-template-columns: 3.4rem 1fr; gap: 1.1rem; padding: 1rem 0; border-bottom: 1px solid rgb(243 239 230 / 0.25); align-items: start; }
+  .de__ico { width: 3.4rem; height: 3.4rem; color: #e8c96a; }
+  .de__list h3 { font-size: 1.45rem; line-height: 1.1; }
+  .de__list p { margin: 0.2rem 0 0; font-size: var(--fs-small); color: #d8e0d6; }
+  .de__list a { font-size: var(--fs-micro); letter-spacing: 0.06em; display: inline-flex; min-height: 36px; align-items: center; }
+  .de__wall { grid-column: 7 / 13; display: grid; row-gap: clamp(4rem, 8vw, 7rem); }
+  .dp { width: min(100%, 470px); }
+  .dp--1 { justify-self: end; }
+  .de .cap { max-width: 470px; }
+  .de :global(.ig__box) { outline-color: rgb(255 255 255 / 0.2); }
+  @media (max-width: 900px) {
+    .de__side, .de__wall { grid-column: 1 / -1; position: static; }
+    .de__wall { margin-top: 4rem; }
+    .dp, .dp--1 { width: 100%; justify-self: stretch; }
+  }
+
+  /* ——— 03 LOOKBOOK ——— */
+  .lb { background: var(--velours); color: #f6ece8; padding-block: clamp(4.5rem, 9vw, 8.5rem); }
+  .lb .wrap { max-width: 1440px; }
+  .lb__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.2vw, 2rem); align-items: end; margin-bottom: clamp(3rem, 6vw, 5.5rem); }
+  .lb__head .kicker { grid-column: 1 / -1; }
+  .lb h2 { grid-column: 1 / 7; font-size: var(--fs-1); margin-top: 1.2rem; }
+  .lb__lede { grid-column: 8 / 13; margin: 0; color: #ead6d3; }
+  .lb__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.25rem, 2.6vw, 2.5rem); align-items: start; }
+  .lk--1 { margin-top: clamp(3rem, 9vw, 9rem); }
+  .lk--2 { margin-top: clamp(1.5rem, 4vw, 4rem); }
+  .lb .cap { max-width: none; }
+  @media (max-width: 900px) {
+    .lb h2, .lb__lede { grid-column: 1 / -1; }
+    .lb__lede { margin-top: 1.4rem; }
+    .lb__row { grid-template-columns: minmax(0, 1fr); row-gap: 4.5rem; }
+    .lk--1, .lk--2 { margin-top: 0; }
+  }
+
+  /* ——— 04 LA MAISON ——— */
+  .ma { background: var(--rose); color: var(--encre); padding-block: clamp(4.5rem, 9vw, 8.5rem); }
+  .ma__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.2vw, 2rem); row-gap: 3.5rem; max-width: 1440px; }
+  .ma__head { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: inherit; align-items: end; }
+  .ma__head .kicker { grid-column: 1 / -1; }
+  .ma h2 { grid-column: 1 / 7; font-size: var(--fs-1); margin-top: 1.2rem; }
+  .ma__bio { grid-column: 7 / 13; margin: 0; font-family: var(--serif); font-style: italic; font-size: clamp(1.35rem, 2.2vw, 2rem); line-height: 1.22; font-variation-settings: 'opsz' 40; }
+  .ma__bio p { margin: 0; }
+  .ma__bio-fr { grid-column: 7 / 13; margin: 0.9rem 0 0; font-size: var(--fs-small); color: #4a3b47; }
+  .ma__pop { grid-column: 1 / 6; }
+  .ma__facts { grid-column: 7 / 13; align-self: start; }
+  .ma__dl { margin: 0; display: grid; border-top: 1px solid rgb(29 36 71 / 0.3); }
+  .ma__dl div { display: grid; grid-template-columns: 8.5rem 1fr; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid rgb(29 36 71 / 0.3); }
+  .ma__dl dt { font: 600 var(--fs-micro)/1.6 var(--sans); letter-spacing: 0.2em; text-transform: uppercase; }
+  .ma__dl dd { margin: 0; }
+  .ma__ch-t { font-size: clamp(1.6rem, 2.4vw, 2.2rem); margin: 3rem 0 1.2rem; }
+  .ma__ch { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .ma__ch li { display: grid; grid-template-columns: 8.5rem 1fr; column-gap: 1rem; padding: 0.85rem 0; border-bottom: 1px solid rgb(29 36 71 / 0.18); }
+  .ma__when { grid-row: span 2; font: 600 var(--fs-micro)/1.6 var(--sans); letter-spacing: 0.12em; text-transform: uppercase; }
+  .ma__ch strong { font-weight: 600; }
+  .ma__note { font-size: var(--fs-small); color: #4a3b47; }
+  @media (max-width: 900px) {
+    .ma h2, .ma__bio, .ma__bio-fr, .ma__pop, .ma__facts { grid-column: 1 / -1; }
+    .ma__bio { margin-top: 1.6rem; }
+  }
+  @media (max-width: 480px) {
+    .ma__dl div, .ma__ch li { grid-template-columns: 1fr; gap: 0.3rem; }
+    .ma__when { grid-row: auto; }
+  }
+
+  /* ——— 05 CONTACT ——— */
+  .ct { background: var(--encre); color: var(--blanc); padding-block: clamp(4.5rem, 10vw, 9rem); }
+  .ct__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(3rem, 7vw, 7rem); align-items: end; max-width: 1440px; }
+  .ct h2 { font-size: var(--fs-mega); line-height: 0.9; margin-top: 1.2rem; }
+  .ct h2 em { display: block; }
+  .ct__lede { margin: 2rem 0 0.8rem; color: #d9dcea; }
+  .ct__quotes { list-style: none; margin: 0 0 2.4rem; padding: 0; display: grid; gap: 0.5rem; font-family: var(--serif); font-style: italic; font-size: clamp(1.2rem, 1.8vw, 1.55rem); }
+  .ct__quotes span { font: 400 var(--fs-micro)/1 var(--sans); font-style: normal; letter-spacing: 0.1em; margin-left: 0.6rem; color: #b9bdd0; white-space: nowrap; }
+  .ct__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; }
+  .btn--big { min-height: 4rem; padding-inline: 2.2rem; font-size: 0.8125rem; }
+  .ct__dm { background: var(--safran); color: var(--encre); border-color: var(--safran); }
+  .ct__dm:hover { background: var(--blanc); border-color: var(--blanc); color: var(--encre); }
+  .ct__steps { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid rgb(255 255 255 / 0.25); }
+  .ct__steps li { display: grid; grid-template-columns: 3rem 1fr; gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid rgb(255 255 255 / 0.25); }
+  .ct__steps span { font: 600 var(--fs-micro)/1.9 var(--sans); letter-spacing: 0.16em; color: var(--safran); }
+  .ct__steps p { margin: 0; color: #d9dcea; }
+  .ct__steps strong { color: var(--blanc); font-weight: 600; }
+  @media (max-width: 900px) {
+    .ct__grid { grid-template-columns: 1fr; }
+    .ct__dm { width: 100%; }
+  }
 </style>
