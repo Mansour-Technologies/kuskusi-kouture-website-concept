@@ -6,57 +6,53 @@
 Live: https://mansour-technologies.github.io/kuskusi-kouture-website-concept/
 
 ## Overview
-A static, single-page brand showcase ("site vitrine") for Kuskusi Kouture. It is built from what the house actually publishes on its official Instagram account [@kuskusikouture](https://www.instagram.com/kuskusikouture/):
-- its bio line, *"simplicity with sophistication… honoring our Moroccan heritage"*
-- its recurring caption, *« Une touche marocaine dans chaque détail »*
-- its real spring 2026 pieces: jellabas, kimonos, a bomber, gandouras, long wrap dresses
-- its colours, and the riad settings of its photos
-
-The site is in French, designed mobile-first, and has no shop, bag, prices, accounts or stored state.
+A static, single-page fashion showcase ("site vitrine") for Kuskusi Kouture (Casablanca), built around the house's **own published pieces**. Twelve real posts are shown through Instagram's official embed, unmodified, with the house's verbatim captions and dates. French copy; no shop, prices, accounts or stored state.
 
 **Sections**
-1. **Hero — "l'arcade".** Three riad arches hold original drawings of three real pieces: the saffron wrap dress, the blush wrap dress, and the lime hooded jellaba. They sit under the house's own caption line. Each arch is a button that opens the piece.
-2. **Nuancier.** The season's real colours (safran, vert citron, rose dragée, ivoire & noir, or pâle, menthe). Each colour opens its piece.
-3. **01 La maison.**
-   - The bio, quoted.
-   - Sourced facts:
-     - Casablanca geotag
-     - House of Chiki, Marrakech, as pinned in the bio
-     - Spring Pop-Up at Mooon Studio, 18–19 April 2026
-     - a "Kids" story highlight
-   - The designer's name, marked "à confirmer".
-4. **02 Le vestiaire.** 12 real pieces in four chapters: Robes, Jellabas, Kimonos & vestes, Gandouras. Each is an original drawing that echoes the official post: its colour, cut, signature detail and setting.
-   - Clicking a piece opens an accessible dialog (native `<dialog>`, focus trap, Escape, focus return, arrows, swipe) with:
-     - the house's verbatim caption
-     - the post date
-     - the colours observed
-     - **"Afficher la photo officielle"**, which loads Instagram's official embed on click
-     - "Ouvrir sur Instagram"
-     - "Demander ce modèle" (Instagram DM)
-5. **03 Le détail.** The "touche marocaine", detail by detail, as it appears in the posts: capuchon beldi, row of black buttons, beaded neckline, ruffled hem, embroidered panels, tassel ties.
-6. **04 Sur Instagram.** Three click-to-load facades for official embeds of public posts. No request reaches Instagram before the click (this is tested).
-7. **05 Écrire à la maison.** A large Instagram DM card (`https://ig.me/m/kuskusikouture`), a three-step "Repérer / Écrire / Échanger" sequence, and an example message labelled as proposed.
+1. **Hero.** A saffron field (the colour of the house's April 2026 *Robe longue*), the KK lockup with "KUSKUSI KOUTURE" in spaced capitals, and the house's caption as the title: « Une touche marocaine dans chaque détail ». Original croquis of the two jellabas published on 6 April 2026 stand in front of a tone-on-tone KK. "Découvrir les créations" and "Contacter la maison". The hero never waits on Instagram.
+2. **01 Les créations (printemps 2026).** *Robe longue* (10 Apr), the two jellabas published the same day (6 Apr), *Gandoura* (30 Mar), *Kimono court en dentelle* (29 Mar). Asymmetric editorial layout; each post carries its number, date, Casablanca geotag, verbatim caption and a short note on what to look at.
+3. **02 Détails & matières.** The details the house repeats (capuchon beldi, row of black buttons, beaded neckline, ruffled hem, embroidered panels, tassel ties), each linked to its post, beside three close looks: *gandoura Tanyla* and *Bad3ia Tanila* (March 2024) and the tasselled jacquard gandoura (March 2026). English captions get a labelled proposed translation.
+4. **03 Lookbook 2024.** Ramadan 2024 in the riad salon (*gandoura Thairy*, *gandoura kaki*) and the *Resort Collection* film (July 2024).
+5. **04 La maison.** The Instagram bio, Casablanca, Marrakech (House of Chiki, pinned in the bio), the Mooon Studio Spring Pop-Up (official post by @mooonstudio_ and MWN Lifestyle), the designer name from Facebook ("à confirmer"), and a public chronology of the collections built from the post dates.
+6. **05 Contact.** "Contacter la maison": Instagram DM (`https://ig.me/m/kuskusikouture`), the profile, and the Facebook page. The house's own words on ordering are quoted ("Orders via DM. We deliver everywhere in Morocco.", 11 March 2024). No prices or terms are stated.
 
 ## Photography & embeds policy
-- **No photograph of the house is committed, copied or rehosted.** The real photographs appear only through Instagram's official embed iframe (`https://www.instagram.com/p/<code>/embed/`), created only after a user click.
-- The arch drawings (`src/components/Plate.astro`) are original fashion croquis: an elongated figure in a fine navy ink line, the garment in a watercolour wash of its real colour (shared SVG filters `#kw` and `#kb` in the layout), and the signature detail marked precisely. Each one's alt text states which official post it echoes. The data, with the verbatim captions and shortcodes, is in `src/data/collections.ts`.
-- The header and footer "KK" lockup is a typographic *evocation* of the house's monogram, set in Bodoni Moda. It is to be replaced by the official vector logo.
+- **No photograph of the house is committed, copied, rehosted or hotlinked.** Real images appear only through Instagram's official embed iframe `https://www.instagram.com/p/<code>/embed/`, unmodified: no crop, no overlay, Instagram's header, footer and links intact.
+- Embeds load **lazily on scroll** (IntersectionObserver, started after the page `load` event, 320 px margin), not behind a click. Each box reserves its exact height before loading: `ratio × width + 208 px` (3:4 posts 4/3, square 1, reels and 4:5 posts 5/4), measured from Instagram's own `MEASURE` message at widths 300–540 px. The box then adopts the height Instagram reports, if it differs.
+- Every embed keeps a plain "Voir sur Instagram" link (no-JS fallback) and an "Intégration officielle Instagram · @account ↗" source line.
+- All twelve embeds were checked to render in a clean, logged-out Chromium (2026-11-27).
+- The croquis (`src/components/Plate.astro`) are original drawings after real pieces, labelled as such; they are never presented as products.
+- The KK lockup is a typeset evocation of the house's monogram (Bodoni Moda); to be replaced by the official vector.
+
+## Posts shown (`src/data/posts.ts`)
+| # | Post | Date | Piece (house's words) | Section |
+|---|---|---|---|---|
+| 1 | `DW9OnKljNCm` | 10 Apr 2026 | Robe longue, saffron, riad courtyard | Créations (opening) |
+| 2 | `DWzf6NTDaio` | 6 Apr 2026 | Jellaba deux pièces, lime | Créations |
+| 3 | `DWytRK9DEOI` | 6 Apr 2026 | Jellaba sans capuche, ivory, black buttons | Créations |
+| 4 | `DWg-jvTjRne` | 30 Mar 2026 | Gandoura, gold jacquard | Créations |
+| 5 | `DWeUgdIDHps` | 29 Mar 2026 | Kimono court en dentelle, capuchon beldi | Créations |
+| 6 | `C4dlFITNdz6` | 13 Mar 2024 | Gandoura Tanyla, emerald (reel) | Détails |
+| 7 | `C4gtHKgNwx1` | 14 Mar 2024 | Bad3ia Tanila (reel) | Détails |
+| 8 | `DWi0NMeDcqd` | 31 Mar 2026 | Gandoura, tassel ties | Détails |
+| 9 | `C4YMaPOtaSP` | 11 Mar 2024 | Gandoura Thairy (reel) | Lookbook |
+| 10 | `C4arM39NlkD` | 12 Mar 2024 | Gandoura kaki (reel) | Lookbook |
+| 11 | `C9IImR7tfYQ` | 7 Jul 2024 | Resort Collection (reel) | Lookbook |
+| 12 | `DW_ZmP1jQhR` | 11 Apr 2026 | Spring Pop-Up flyer, by @mooonstudio_ | La maison |
 
 ## Assets to replace on approval
-| Placement | Current | Recommended replacement (high-res original from the house) |
+| Placement | Current | Recommended replacement (from the house) |
 |---|---|---|
-| Header / footer / favicon lockup | typeset reversed-K + K | Official KK monogram (vector) |
-| Hero centre arch | drawing of post `DW9OnKljNCm` (9 Apr 2026) | Saffron wrap dress in the riad courtyard (that post) |
-| Hero left / right arches | drawings of `DW55YkiDbrK`, `DWzf6NTDaio` | Blush wrap dress; lime hooded jellaba |
-| Vestiaire (12 arches) | drawings of the 12 posts in `collections.ts` | The 12 corresponding photographs (portrait 3:4 crops) |
-| Détail icons | line drawings | Close-up detail shots (buttons, hood, tassels, embroidered panels) |
-| Sur Instagram (3 facades) | drawings and official embeds on click | Keep the embeds, or swap in approved photos |
+| Header / hero / footer / favicon lockup | typeset reversed-K + K | Official KK monogram (vector) |
+| Hero | croquis of `DWytRK9DEOI` and `DWzf6NTDaio` | High-res campaign image: the saffron Robe longue in the riad (`DW9OnKljNCm`), or the 2024 riad-salon shoot |
+| Créations, Détails, Lookbook | official embeds of the posts above | High-res originals of posts 1–5, 6, 7, 9, 10 (portrait crops), and detail close-ups (aakad trim, frog closures, tassels, beldi hood) |
+| Lookbook | Resort film embed | Stills of the Resort Collection (striped sets, linen) |
 | Designer name | "Zhor Kuskusi — à confirmer" | Confirmation by the house |
 | WhatsApp | `site.whatsapp = null` (not rendered) | **WhatsApp number to be inserted on the house's approval** |
-| Facebook | `site.facebook = null` (not rendered) | Page "Kuskusi Zhor Kouture" once the house confirms it is theirs |
+| Facebook | linked (content match with Instagram, see `src/data/site.ts`) | Confirmation by the house |
 
 ## Stack & commands
-Astro (static) · TypeScript · CSS custom properties · one small vanilla TS module (menu, piece dialog, embed facades, reveal) · Playwright. Fonts: Bodoni Moda and Hanken Grotesk (SIL OFL), self-hosted via Fontsource.
+Astro (static) · TypeScript · CSS custom properties · one small vanilla TS module (menu, lazy embeds, reveal) · Playwright. Fonts: Bodoni Moda and Hanken Grotesk (SIL OFL), self-hosted via Fontsource.
 
 ```bash
 npm ci
@@ -64,15 +60,15 @@ npm run dev                 # http://localhost:4321/kuskusi-kouture-website-conc
 npm run build               # -> dist/
 npx playwright test         # serves dist/ via scripts/serve.mjs
 BASE_URL=https://mansour-technologies.github.io/kuskusi-kouture-website-concept/ npx playwright test
-node scripts/shots.mjs <url> <outDir> [--embed]   # screenshot set
+node scripts/shots.mjs <url> <outDir>   # screenshots + viewport segments for stitched full pages
 npm run og                  # re-render public/og.png
 ```
 GitHub Actions (`.github/workflows/deploy.yml`) deploys to GitHub Pages on every push to `main`. Internal URLs go through `src/lib/url.ts`, which applies the base path.
 
 ## Known limitations
-- The drawings are interpretations. True luxury depends on the house's own photographs, which are shown only via the official embed until approval.
-- The Instagram embed depends on Meta: content, availability and cookies are under Instagram's control.
-- `noindex, nofollow` is set on every page, and `robots.txt` disallows crawling (demo).
+- The photographs depend on Meta: Instagram's embed brings its own UI ("View profile", likes), its own cookies once loaded, and its own console errors (permissions-policy noise from Instagram's scripts, not this site's code). If Instagram changes the embed, the reserved heights may need re-measuring.
+- Reels show Instagram's poster frame with "Watch on Instagram"; playback happens on Instagram.
+- `noindex, nofollow` is set on every page and `robots.txt` disallows crawling (demo).
 
 ## Attribution
 Concept digital proposé par [Mansour Technologies](https://mansourtechnologies.com/).

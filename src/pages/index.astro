@@ -374,8 +374,12 @@ const dm = site.instagram.dm;
   .de .cap { max-width: 470px; }
   .de :global(.ig__box) { outline-color: rgb(255 255 255 / 0.2); }
   @media (max-width: 900px) {
-    .de__side, .de__wall { grid-column: 1 / -1; position: static; }
-    .de__wall { margin-top: 4rem; }
+    /* phones: the close looks come first, the glossary after them */
+    .de__side { display: contents; }
+    .de__side > * { grid-column: 1 / -1; }
+    .de__lede { margin-bottom: 2.6rem; }
+    .de__wall { grid-column: 1 / -1; order: 2; }
+    .de__list { order: 3; margin-top: 4.5rem; }
     .dp, .dp--1 { width: 100%; justify-self: stretch; }
   }
 

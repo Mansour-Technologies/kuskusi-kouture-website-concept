@@ -28,9 +28,11 @@ for (const [name, w, h] of [['desktop', 1440, 900], ['mobile', 375, 812]]) {
     await p.waitForTimeout(900);
     await p.screenshot({ path: `${out}/mobile-nav-open.png` });
     await p.keyboard.press('Escape');
+    await p.evaluate(() => (document.activeElement)?.blur?.());
   }
+  await p.mouse.move(1, 1);
   // Walk the page so every embed loads, saving one segment per viewport (header made static).
-  await p.addStyleTag({ content: 'html{scroll-behavior:auto!important}.hdr{position:relative!important}' });
+  await p.addStyleTag({ content: 'html{scroll-behavior:auto!important}.hdr{position:relative!important}.cr__head,.de__side{position:static!important}' });
   const total = await p.evaluate(() => document.documentElement.scrollHeight);
   for (let y = 0, i = 0; y < total; y += h, i++) {
     await p.evaluate((y) => window.scrollTo(0, y), y);
